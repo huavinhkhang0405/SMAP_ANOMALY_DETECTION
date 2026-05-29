@@ -1,0 +1,15 @@
+# Môi trường ảo
+venv/
+.env
+env/
+ENV/
+
+# Python rác
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# ========================= # Large Training Artifacts # =========================
+models/checkpoints/
