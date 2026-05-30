@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>NASA SMAP Spacecraft Health &amp; Telemetry Monitor</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        .glass-panel {
+            background-color: rgba(38, 39, 48, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-red {
+            box-shadow: 0 0 15px rgba(255, 180, 171, 0.3);
+        }
+        .glow-red-strong {
+            box-shadow: 0 0 25px rgba(255, 180, 171, 0.6);
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 15px rgba(147, 0, 10, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(147, 0, 10, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(147, 0, 10, 0.4); }
+        }
+        
+        .glow-green-strong {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+        
+        .glow-yellow-strong {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+        
+        /* Chart lines simulation */
+        .chart-actual { stroke: #c4c6cf; stroke-width: 2; fill: none; }
+        .chart-predicted { stroke: #d5c3ba; stroke-width: 2; stroke-dasharray: 4 4; fill: none; }
+        .chart-anomaly { fill: #ffb4ab; stroke: #93000a; stroke-width: 1; }
+        .chart-confidence { fill: rgba(213, 195, 186, 0.15); stroke: none; }
+        
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#121414",
+                        "inverse-primary": "#5c5e66",
+                        "on-tertiary-fixed": "#231914",
+                        "error": "#ffb4ab",
+                        "secondary-container": "#454650",
+                        "on-primary-fixed-variant": "#44474e",
+                        "error-container": "#93000a",
+                        "on-error-container": "#ffdad6",
+                        "on-background": "#e3e2e2",
+                        "on-error": "#690005",
+                        "on-secondary-container": "#b5b4c0",
+                        "on-primary-container": "#7a7c84",
+                        "surface-container-highest": "#343535",
+                        "on-tertiary-container": "#897a72",
+                        "on-surface-variant": "#c6c6cb",
+                        "tertiary-container": "#180f0a",
+                        "tertiary-fixed": "#f2dfd5",
+                        "on-primary-fixed": "#191c22",
+                        "surface": "#121414",
+                        "primary-container": "#0e1117",
+                        "on-tertiary-fixed-variant": "#51443e",
+                        "inverse-on-surface": "#303031",
+                        "primary": "#c4c6cf",
+                        "background": "#121414",
+                        "secondary": "#c6c5d1",
+                        "on-surface": "#e3e2e2",
+                        "surface-container-lowest": "#0d0e0f",
+                        "surface-container-low": "#1b1c1c",
+                        "primary-fixed": "#e1e2eb",
+                        "outline-variant": "#45474b",
+                        "on-tertiary": "#392e28",
+                        "on-primary": "#2e3037",
+                        "on-secondary-fixed-variant": "#454650",
+                        "tertiary-fixed-dim": "#d5c3ba",
+                        "tertiary": "#d5c3ba",
+                        "primary-fixed-dim": "#c4c6cf",
+                        "surface-tint": "#c4c6cf",
+                        "secondary-fixed-dim": "#c6c5d1",
+                        "inverse-surface": "#e3e2e2",
+                        "secondary-fixed": "#e2e1ee",
+                        "on-secondary-fixed": "#1a1b24",
+                        "surface-variant": "#343535",
+                        "surface-container": "#1f2020",
+                        "on-secondary": "#2f3039",
+                        "outline": "#909095",
+                        "surface-container-high": "#292a2a",
+                        "surface-bright": "#383939"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "card-padding": "20px",
+                        "container-margin": "24px",
+                        "base": "8px",
+                        "gutter": "16px"
+                    },
+                    "fontFamily": {
+                        "data-lg": ["JetBrains Mono"],
+                        "label-caps": ["JetBrains Mono"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "data-sm": ["JetBrains Mono"]
+                    },
+                    "fontSize": {
+                        "data-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "data-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface font-body-md text-body-md overflow-x-hidden min-h-screen flex">
+<!-- JSON Component: SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-72 fixed left-0 top-0 bg-surface-container-low/70 backdrop-blur-xl border-r border-white/10 shadow-xl py-base z-50">
+<div class="px-gutter mb-8 mt-4 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="satellite_alt">satellite_alt</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-surface text-lg">NASA SMAP</h1>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Mission Control</p>
+</div>
+</div>
+<ul class="flex flex-col gap-1 px-2 mb-8">
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-primary-container/30 border-r-2 border-primary transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+                    Telemetry Dashboard
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+                    Health Analytics
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="memory">memory</span>
+                    AI Subsystems
+                </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+                    Configuration
+                </a>
+</li>
+</ul>
+<div class="px-gutter mt-auto flex flex-col gap-4">
+<!-- Demo Scenarios -->
+<div class="flex flex-col gap-2 mb-2">
+<button id="scenario-happy-btn" class="w-full py-2 bg-surface-container-highest border border-outline-variant text-on-surface font-label-caps text-xs rounded-lg hover:bg-white/10 transition-colors duration-200" type="button">
+                    Kịch bản 1: Quỹ đạo Bình yên
+                </button>
+<button id="scenario-critical-btn" class="w-full py-2 bg-error-container/20 border border-error/50 text-error font-label-caps text-xs rounded-lg hover:bg-error-container/40 transition-colors duration-200" type="button">
+                    Kịch bản 2: Sự cố Bất ngờ
+                </button>
+<button id="scenario-robust-btn" class="w-full py-2 bg-yellow-500/15 border border-yellow-500/40 text-yellow-500 font-label-caps text-xs rounded-lg hover:bg-yellow-500/25 transition-colors duration-200" type="button">
+                    Kịch bản 3: Kiểm soát Ngoại lệ
+                </button>
+</div>
+<!-- Control Panel -->
+<div class="glass-panel p-4 rounded-xl flex flex-col gap-4">
+<h2 class="font-label-caps text-label-caps text-primary uppercase">Operations Pipeline</h2>
+<!-- File Upload -->
+<div id="upload-trigger" class="border border-dashed border-outline-variant rounded-lg p-4 text-center cursor-pointer hover:bg-white/5 hover:border-primary/50 transition-all duration-300">
+<span class="material-symbols-outlined text-on-surface-variant mb-2" data-icon="upload_file">upload_file</span>
+<p class="font-data-sm text-data-sm text-on-surface-variant text-xs">Inject Telemetry Data Packet</p>
+</div>
+<input type="file" id="real-file-uploader" class="hidden" accept=".npy,.csv,.txt">
+<!-- Dropdown -->
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">Select Subsystem Sensor</label>
+<select id="sensor-select" class="bg-surface-container border border-outline-variant rounded-lg p-2 font-data-sm text-xs text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors duration-200 cursor-pointer">
+<option value="P-1">L-Band Radiometer - Channel P-1</option>
+<option value="P-2">L-Band Radiometer - Channel P-2</option>
+<option value="T-1">Thermal Control - Sensor T-1</option>
+</select>
+</div>
+<!-- Sliders -->
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant flex justify-between text-[10px]">
+<span>Noise Contamination (IF)</span>
+<span id="noise-slider-val" class="text-primary">0.05</span>
+</label>
+<input id="noise-slider" class="w-full accent-primary cursor-pointer transition-all duration-200" max="0.2" min="0.01" step="0.01" type="range" value="0.05"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface-variant flex justify-between text-[10px]">
+<span>Detection Threshold</span>
+<span id="thresh-slider-val" class="text-primary">2.5σ</span>
+</label>
+<input id="thresh-slider" class="w-full accent-primary cursor-pointer transition-all duration-200" max="5.0" min="1.0" step="0.1" type="range" value="2.5"/>
+</div>
+</div>
+<button class="w-full py-3 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(196,198,207,0.3)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2" id="run-analysis-btn">
+<span class="material-symbols-outlined" data-icon="play_arrow">play_arrow</span>
+                 Execute Diagnostic
+             </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 ml-0 md:ml-72 flex flex-col min-h-screen relative">
+<!-- JSON Component: TopNavBar -->
+<header class="fixed top-0 right-0 left-0 md:left-72 h-16 bg-surface-dim/80 backdrop-blur-md border-b border-white/10 shadow-sm flex items-center justify-between px-gutter w-auto md:w-[calc(100%-18rem)] z-40">
+<h1 class="font-headline-md text-headline-md tracking-tight text-on-surface hidden md:block">NASA SMAP Spacecraft Health &amp; Telemetry Monitor</h1>
+<!-- Search & Actions -->
+<div class="flex items-center gap-4 ml-auto">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
+<input class="bg-surface-container border border-outline-variant rounded-full pl-9 pr-4 py-1.5 font-data-sm text-data-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface w-64 transition-all duration-300 focus:w-72" placeholder="Search telemetry streams..." type="text"/>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:scale-90">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center cursor-pointer hover:border-primary transition-colors duration-200">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Dashboard Content -->
+<div class="pt-24 px-container-margin pb-container-margin flex flex-col gap-6 max-w-[1600px] w-full mx-auto fade-in-up">
+<!-- KPI Row -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Card 1 -->
+<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Mission Elapsed Time (Timesteps)</h3>
+<div class="mt-4 flex items-end gap-3 relative z-10">
+<span id="kpi-elapsed-value" class="font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300">1,440</span>
+<span id="kpi-elapsed-trend" class="font-data-sm text-data-sm text-primary mb-1">+120/hr</span>
+</div>
+<div class="mt-4 h-8 w-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 relative z-10">
+<svg class="w-full h-full preserve-aspect-ratio-none" viewbox="0 0 100 20">
+<polyline class="text-primary transition-all duration-500" fill="none" points="0,15 20,12 40,16 60,8 80,14 100,10" stroke="currentColor" stroke-width="2"></polyline>
+</svg>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default">
+<div class="absolute inset-0 bg-gradient-to-br from-error/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Sensor Anomalies Detected</h3>
+<div class="mt-4 flex items-end gap-3 relative z-10">
+<span id="kpi-anomalies-value" class="font-data-lg text-data-lg text-error">32</span>
+<span id="kpi-anomalies-trend" class="font-data-sm text-data-sm text-error mb-1">↑ 4</span>
+</div>
+<div class="mt-4 h-8 w-full opacity-50 group-hover:opacity-100 transition-opacity duration-300 relative z-10">
+<svg class="w-full h-full preserve-aspect-ratio-none" viewbox="0 0 100 20">
+<polyline id="kpi-anomalies-sparkline" class="text-error" fill="none" points="0,18 20,18 40,5 60,18 80,18 100,18" stroke="currentColor" stroke-width="2"></polyline>
+</svg>
+</div>
+</div>
+<!-- Card 3: Alert -->
+<div id="kpi-status-card" class="glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden border-error/50 glow-red-strong hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
+<div id="kpi-status-bg" class="absolute inset-0 bg-error/10"></div>
+<h3 class="font-label-caps text-label-caps text-error uppercase tracking-widest relative z-10 flex items-center gap-2">
+<span id="kpi-status-led" class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                        ALERT STATUS
+                    </h3>
+<span id="kpi-status-text" class="font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg">CRITICAL - Severe Sensor Degradation Detected</span>
+<p id="kpi-status-subtext" class="font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono">Subsystem P-1 Integrity Compromised</p>
+</div>
+</div>
+
+<!-- Exception Maintenance Warning Container -->
+<div id="maintenance-container" class="hidden glass-panel p-8 rounded-xl text-center border-yellow-500/40 shadow-lg max-w-2xl mx-auto my-12 fade-in-up">
+    <h2 class="font-headline-md text-headline-md text-yellow-500 font-bold mb-4 flex items-center justify-center gap-2 text-xl">
+        <span class="material-symbols-outlined text-yellow-500 text-3xl">warning</span>
+        Sensor Under Calibration
+    </h2>
+    <p class="font-data-sm text-data-sm text-on-surface-variant font-mono mb-4 text-sm" id="maintenance-sensor-name">
+        Sensor: L-Band Radiometer - Channel P-2
+    </p>
+    <hr class="border-yellow-500/20 my-6">
+    <p class="text-on-surface text-lg italic font-semibold" style="color: #F59E0B;">
+        "Cảm biến đang bảo trì / Mô hình đang Retraining"
+    </p>
+    <p class="text-on-surface-variant text-sm mt-4 leading-relaxed">
+        The telemetry analysis pipeline has gracefully bypassed this sensor. LSTM forecasting and Isolation Forest scorer are currently undergoing automated retraining in the backend.
+    </p>
+</div>
+
+<!-- Charts Area -->
+<div id="charts-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Chart 1: LSTM -->
+<div class="glass-panel rounded-xl p-card-padding flex flex-col hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">LSTM Forecasting Performance</h3>
+<div class="flex gap-4">
+<div class="flex items-center gap-2">
+<div class="w-3 h-0.5 bg-primary"></div>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Telemetry (Actual)</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-0.5 bg-tertiary border-dashed border-b border-tertiary"></div>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">AI Predicted</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 bg-[rgba(213,195,186,0.15)] border border-[rgba(213,195,186,0.3)]"></div>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Conf Ribbon (±2.5σ)</span>
+</div>
+</div>
+</div>
+<div class="flex-1 w-full min-h-[300px] relative border-l border-b border-white/10 p-2 group">
+<!-- Y Axis labels -->
+<div class="absolute -left-8 top-0 bottom-0 flex flex-col justify-between font-data-sm text-[10px] text-on-surface-variant py-2">
+<span>1.0</span>
+<span>0.5</span>
+<span>0.0</span>
+<span>-0.5</span>
+<span>-1.0</span>
+</div>
+<!-- Grid Lines -->
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none px-2 py-2">
+<div class="w-full border-t border-white/5 h-0"></div>
+<div class="w-full border-t border-white/5 h-0"></div>
+<div class="w-full border-t border-white/5 h-0"></div>
+<div class="w-full border-t border-white/5 h-0"></div>
+<div class="w-full border-t border-white/5 h-0"></div>
+</div>
+<!-- SVG Chart Simulation -->
+<svg id="lstm-svg" class="w-full h-full preserve-aspect-ratio-none overflow-visible" viewbox="0 0 500 200">
+<!-- Confidence Ribbon -->
+<path id="lstm-ribbon" class="chart-confidence"></path>
+<!-- Actual Line -->
+<path id="lstm-actual" class="chart-actual transition-all duration-700 ease-in-out"></path>
+<!-- Predicted Line -->
+<path id="lstm-predicted" class="chart-predicted transition-all duration-700 ease-in-out"></path>
+<!-- Anomaly Highlights -->
+<g id="lstm-anomalies"></g>
+</svg>
+<!-- X Axis labels -->
+<div class="absolute -bottom-6 left-0 right-0 flex justify-between font-data-sm text-[10px] text-on-surface-variant px-2 font-mono">
+<span>T-04:00</span>
+<span>T-03:00</span>
+<span>T-02:00</span>
+<span>T-01:00</span>
+<span>T-00:00</span>
+</div>
+</div>
+</div>
+<!-- Chart 2: Anomalies -->
+<div class="glass-panel rounded-xl p-card-padding flex flex-col relative hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Anomaly Detection Overlay</h3>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Confirmed Breach</span>
+</div>
+</div>
+<div class="flex-1 w-full min-h-[300px] relative border-l border-b border-white/10 p-2">
+<!-- SVG Chart Simulation -->
+<svg id="anomaly-svg" class="w-full h-full preserve-aspect-ratio-none overflow-visible" viewbox="0 0 500 200">
+<!-- Residual Line -->
+<path id="anomaly-residual" class="chart-actual opacity-50"></path>
+<!-- Threshold Line -->
+<line id="anomaly-threshold" opacity="0.5" stroke="#ffb4ab" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="500" y1="60" y2="60"></line>
+<!-- Anomaly Markers -->
+<g id="anomaly-markers"></g>
+</svg>
+</div>
+</div>
+</div>
+<!-- Bottom Section: Logs / Incident Analysis Report -->
+<div id="log-table-container" class="glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20">
+<div id="log-expander" class="p-card-padding border-b border-white/10 flex justify-between items-center bg-surface-container-low/50 cursor-pointer hover:bg-surface-container transition-colors duration-200">
+<h3 id="log-title" class="font-headline-md text-headline-md text-error text-lg flex items-center gap-2">
+<span id="log-title-icon" class="material-symbols-outlined text-error" data-icon="report">report</span>
+                        Incident Analysis Report
+                    </h3>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform duration-300 animate-none" data-icon="expand_more" id="log-expander-icon">expand_more</span>
+</div>
+<div class="block transition-all duration-300" id="log-table">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container/30 border-b border-white/10">
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Incident ID</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Phenomenon</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">AI Analysis</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Potential Root Cause</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Recommended Action</th>
+</tr>
+</thead>
+<tbody id="log-tbody" class="font-data-sm text-data-sm font-mono">
+<!-- Populated dynamically -->
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Overlay Spinner (Hidden by default, used for demonstration) -->
+<div class="hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300" id="processing-overlay">
+<div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 border-primary/30 glow-red">
+<div class="w-12 h-12 border-4 border-surface-container-highest border-t-primary rounded-full animate-spin"></div>
+<p class="font-label-caps text-label-caps text-primary tracking-widest uppercase mt-2 animate-pulse transition-all duration-300 text-center" id="processing-text">Initiating Diagnostics...</p>
+</div>
+</div>
+<script>
+    // SCENARIO DATA PLACEHOLDER - Injected by Python Template
+    const SCENARIO_DATA = {{SCENARIO_DATA_JSON}};
+
+    // UI elements
+    const kpiElapsedValue = document.getElementById('kpi-elapsed-value');
+    const kpiElapsedTrend = document.getElementById('kpi-elapsed-trend');
+    const kpiAnomaliesValue = document.getElementById('kpi-anomalies-value');
+    const kpiAnomaliesTrend = document.getElementById('kpi-anomalies-trend');
+    const kpiAnomaliesSparkline = document.getElementById('kpi-anomalies-sparkline');
+    
+    const kpiStatusCard = document.getElementById('kpi-status-card');
+    const kpiStatusBg = document.getElementById('kpi-status-bg');
+    const kpiStatusLed = document.getElementById('kpi-status-led');
+    const kpiStatusText = document.getElementById('kpi-status-text');
+    const kpiStatusSubtext = document.getElementById('kpi-status-subtext');
+    
+    const chartsContainer = document.getElementById('charts-container');
+    const maintenanceContainer = document.getElementById('maintenance-container');
+    const maintenanceSensorName = document.getElementById('maintenance-sensor-name');
+    
+    const sensorSelect = document.getElementById('sensor-select');
+    const logTbody = document.getElementById('log-tbody');
+    const logTitle = document.getElementById('log-title');
+    const logTitleIcon = document.getElementById('log-title-icon');
+    const logTableContainer = document.getElementById('log-table-container');
+    
+    const scenarioHappyBtn = document.getElementById('scenario-happy-btn');
+    const scenarioCriticalBtn = document.getElementById('scenario-critical-btn');
+    const scenarioRobustBtn = document.getElementById('scenario-robust-btn');
+    
+    const overlay = document.getElementById('processing-overlay');
+    const processingText = document.getElementById('processing-text');
+    const runAnalysisBtn = document.getElementById('run-analysis-btn');
+    const uploadTrigger = document.getElementById('upload-trigger');
+    const realFileUploader = document.getElementById('real-file-uploader');
+    const noiseSlider = document.getElementById('noise-slider');
+    const threshSlider = document.getElementById('thresh-slider');
+    const noiseSliderVal = document.getElementById('noise-slider-val');
+    const threshSliderVal = document.getElementById('thresh-slider-val');
+
+    // Sync sliders
+    noiseSlider.addEventListener('input', (e) => {
+        noiseSliderVal.textContent = parseFloat(e.target.value).toFixed(2);
+    });
+    threshSlider.addEventListener('input', (e) => {
+        threshSliderVal.textContent = parseFloat(e.target.value).toFixed(1) + "σ";
+    });
+
+    // File Uploader triggers
+    uploadTrigger.addEventListener('click', () => {
+        realFileUploader.click();
+    });
+
+    realFileUploader.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        if (file.name.endsWith('.npy')) {
+            reader.onload = function(evt) {
+                try {
+                    const actualData = parseNpy(evt.target.result);
+                    processAndLoadUploadedTelemetry(actualData, file.name);
+                } catch (err) {
+                    alert("Error parsing .npy: " + err.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        } else {
+            reader.onload = function(evt) {
+                try {
+                    const actualData = parseCsv(evt.target.result);
+                    processAndLoadUploadedTelemetry(actualData, file.name);
+                } catch (err) {
+                    alert("Error parsing file: " + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+    });
+
+    // Helper: Parse CSV/Text telemetry
+    function parseCsv(text) {
+        let lines = text.split(/[\r\n]+/);
+        let data = [];
+        for (let line of lines) {
+            let parts = line.trim().split(/[\s,]+/);
+            let val = parseFloat(parts[0]);
+            if (!isNaN(val)) {
+                data.push(val);
+            }
+        }
+        if (data.length === 0) throw new Error("No numeric values found in file");
+        return data;
+    }
+
+    // Helper: Parse NUMPY binary
+    function parseNpy(arrayBuffer) {
+        const view = new DataView(arrayBuffer);
+        if (view.getUint8(0) !== 0x93 || 
+            view.getUint8(1) !== 0x4E || // N
+            view.getUint8(2) !== 0x55 || // U
+            view.getUint8(3) !== 0x4D || // M
+            view.getUint8(4) !== 0x50 || // P
+            view.getUint8(5) !== 0x59) {  // Y
+            throw new Error("Not a valid numpy file");
+        }
+        
+        const headerLen = view.getUint16(8, true);
+        const headerOffset = 10;
+        const dataOffset = headerOffset + headerLen;
+        
+        const enc = new TextDecoder("utf-8");
+        const headerStr = enc.decode(new Uint8Array(arrayBuffer, headerOffset, headerLen));
+        
+        let shapeMatch = headerStr.match(/'shape':\s*\((\d+)(,\s*(\d+))?\)/);
+        let descrMatch = headerStr.match(/'descr':\s*'([^']+)'/);
+        
+        if (!shapeMatch) {
+            throw new Error("Could not parse shape from header");
+        }
+        
+        const rows = parseInt(shapeMatch[1]);
+        const cols = shapeMatch[3] ? parseInt(shapeMatch[3]) : 1;
+        const descr = descrMatch ? descrMatch[1] : "<f4";
+        
+        if (descr !== "<f4" && descr !== "<f8" && descr !== "|f4" && descr !== "|f8") {
+            throw new Error("Only float32/float64 arrays supported, got " + descr);
+        }
+        
+        const bytesPerElement = descr.includes("4") ? 4 : 8;
+        const dataView = new DataView(arrayBuffer, dataOffset);
+        const actualData = [];
+        
+        for (let i = 0; i < rows; i++) {
+            let index = i * cols * bytesPerElement;
+            if (index + bytesPerElement <= dataView.byteLength) {
+                let val = bytesPerElement === 4 ? dataView.getFloat32(index, true) : dataView.getFloat64(index, true);
+                actualData.push(val);
+            }
+        }
+        return actualData;
+    }
+
+    // Run client-side simulated LSTM + IF analysis on custom raw uploaded data
+    function processAndLoadUploadedTelemetry(actualData, filename) {
+        if (actualData.length > 500) {
+            actualData = actualData.slice(0, 500); // limit density
+        }
+        
+        const len = actualData.length;
+        if (len < 50) {
+            alert("File telemetry series too short. Minimum 50 values required.");
+            return;
+        }
+
+        const predicted = [];
+        const residuals = [];
+        const anomalies = [];
+        const scores = [];
+        
+        // Simple Exponential Moving Average to simulate LSTM model
+        let ema = actualData[0];
+        const alpha = 0.25;
+        for (let i = 0; i < len; i++) {
+            predicted.push(ema);
+            ema = alpha * actualData[i] + (1 - alpha) * ema;
+            residuals.push(Math.abs(actualData[i] - predicted[i]));
+        }
+        
+        let sum = 0;
+        for (let r of residuals) sum += r;
+        const mean = sum / len;
+        
+        let sumSq = 0;
+        for (let r of residuals) sumSq += Math.pow(r - mean, 2);
+        const std = Math.sqrt(sumSq / len);
+        
+        const threshMultiplier = parseFloat(threshSlider.value);
+        const threshold = mean + threshMultiplier * std;
+        
+        for (let i = 0; i < len; i++) {
+            if (residuals[i] > threshold && i > 10) {
+                anomalies.push(1);
+                scores.push(-0.2);
+            } else {
+                anomalies.push(0);
+                scores.push(0.15);
+            }
+        }
+        
+        // Register uploaded dataset into local storage SCENARIO_DATA
+        SCENARIO_DATA.uploaded = {
+            actual: actualData,
+            predicted: predicted,
+            residuals: residuals,
+            anomalies: anomalies,
+            scores: scores,
+            filename: filename
+        };
+        
+        runDiagnosticTransition('uploaded', () => activateScenario('uploaded'));
+    }
+
+    // Expandable logs toggle
+    const logExpander = document.getElementById('log-expander');
+    const logTable = document.getElementById('log-table');
+    const logExpanderIcon = document.getElementById('log-expander-icon');
+    
+    logExpander.addEventListener('click', () => {
+        logTable.classList.toggle('hidden');
+        if (logTable.classList.contains('hidden')) {
+            logExpanderIcon.style.transform = 'rotate(-90deg)';
+        } else {
+            logExpanderIcon.style.transform = 'rotate(0deg)';
+        }
+    });
+
+    // Helper: Map data arrays to SVG Path coordinates
+    function generatePath(data, minVal, maxVal, width, height) {
+        if (!data || data.length === 0) return "";
+        let points = [];
+        for (let i = 0; i < data.length; i++) {
+            let x = (i / (data.length - 1)) * width;
+            let normVal = (data[i] - minVal) / (maxVal - minVal);
+            let y = height - (normVal * height);
+            points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        }
+        return "M " + points.join(" L ");
+    }
+
+    // Helper: Draw confidence ribbon
+    function generateRibbonPath(pred, stdRes, minVal, maxVal, width, height) {
+        if (!pred || pred.length === 0) return "";
+        let upperPoints = [];
+        let lowerPoints = [];
+        for (let i = 0; i < pred.length; i++) {
+            let x = (i / (pred.length - 1)) * width;
+            
+            let valUpper = pred[i] + 2.5 * stdRes;
+            let normUpper = (valUpper - minVal) / (maxVal - minVal);
+            let yUpper = height - (normUpper * height);
+            
+            let valLower = pred[i] - 2.5 * stdRes;
+            let normLower = (valLower - minVal) / (maxVal - minVal);
+            let yLower = height - (normLower * height);
+            
+            upperPoints.push(`${x.toFixed(1)},${yUpper.toFixed(1)}`);
+            lowerPoints.push(`${x.toFixed(1)},${yLower.toFixed(1)}`);
+        }
+        return "M " + upperPoints.join(" L ") + " L " + lowerPoints.reverse().join(" L ") + " Z";
+    }
+
+    // Main SVG rendering function
+    function updateCharts(scenario) {
+        const data = SCENARIO_DATA[scenario];
+        if (!data) return;
+
+        const len = data.actual.length;
+        const width = 500;
+        const height = 200;
+        
+        let minVal = Math.min(...data.actual) - 0.2;
+        let maxVal = Math.max(...data.actual) + 0.2;
+        
+        if (scenario === 'happy' || scenario === 'critical') {
+            minVal = -1.2;
+            maxVal = 1.2;
+        }
+        
+        let sumSq = 0;
+        for (let i = 0; i < data.residuals.length; i++) {
+            sumSq += Math.pow(data.residuals[i], 2);
+        }
+        const stdRes = Math.sqrt(sumSq / data.residuals.length);
+        
+        // Update paths
+        document.getElementById('lstm-actual').setAttribute('d', generatePath(data.actual, minVal, maxVal, width, height));
+        document.getElementById('lstm-predicted').setAttribute('d', generatePath(data.predicted, minVal, maxVal, width, height));
+        document.getElementById('lstm-ribbon').setAttribute('d', generateRibbonPath(data.predicted, stdRes, minVal, maxVal, width, height));
+        
+        const lstmAnomaliesGroup = document.getElementById('lstm-anomalies');
+        lstmAnomaliesGroup.innerHTML = "";
+        
+        let maxRes = Math.max(...data.residuals) + 0.1;
+        if (maxRes < 0.5) maxRes = 0.5;
+        
+        document.getElementById('anomaly-residual').setAttribute('d', generatePath(data.residuals, 0.0, maxRes, width, height));
+        
+        const threshMultiplier = parseFloat(threshSlider.value);
+        const threshold = threshMultiplier * stdRes;
+        const yThreshold = height - (threshold / maxRes) * height;
+        const thresholdLine = document.getElementById('anomaly-threshold');
+        thresholdLine.setAttribute('y1', yThreshold.toFixed(1));
+        thresholdLine.setAttribute('y2', yThreshold.toFixed(1));
+        
+        const anomalyMarkersGroup = document.getElementById('anomaly-markers');
+        anomalyMarkersGroup.innerHTML = "";
+        
+        for (let i = 0; i < len; i++) {
+            let x = (i / (len - 1)) * width;
+            
+            if (data.anomalies[i] === 1) {
+                let normVal = (data.actual[i] - minVal) / (maxVal - minVal);
+                let yActual = height - (normVal * height);
+                
+                const circleLstm = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circleLstm.setAttribute('cx', x.toFixed(1));
+                circleLstm.setAttribute('cy', yActual.toFixed(1));
+                circleLstm.setAttribute('r', '8');
+                circleLstm.setAttribute('fill', 'none');
+                circleLstm.setAttribute('stroke', '#ffb4ab');
+                circleLstm.setAttribute('stroke-width', '2');
+                lstmAnomaliesGroup.appendChild(circleLstm);
+                
+                let yResidual = height - (data.residuals[i] / maxRes) * height;
+                
+                const circleAnom = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circleAnom.setAttribute('cx', x.toFixed(1));
+                circleAnom.setAttribute('cy', yResidual.toFixed(1));
+                circleAnom.setAttribute('r', '6');
+                circleAnom.setAttribute('class', 'chart-anomaly glow-red');
+                anomalyMarkersGroup.appendChild(circleAnom);
+                
+                const circlePulse = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circlePulse.setAttribute('cx', x.toFixed(1));
+                circlePulse.setAttribute('cy', yResidual.toFixed(1));
+                circlePulse.setAttribute('r', '12');
+                circlePulse.setAttribute('fill', 'none');
+                circlePulse.setAttribute('stroke', '#93000a');
+                circlePulse.setAttribute('stroke-width', '1.5');
+                circlePulse.setAttribute('class', 'animate-ping opacity-50');
+                anomalyMarkersGroup.appendChild(circlePulse);
+            }
+        }
+        
+        // MET sparkline rendering
+        let sparklinePts = [];
+        for (let i = 0; i < len; i++) {
+            let sx = (i / (len - 1)) * 100;
+            let valNorm = (data.actual[i] - minVal) / (maxVal - minVal);
+            let sy = 20 - (valNorm * 16 + 2);
+            sparklinePts.push(`${sx.toFixed(0)},${sy.toFixed(0)}`);
+        }
+        kpiElapsedValue.parentElement.nextElementSibling.querySelector('polyline').setAttribute('points', sparklinePts.join(' '));
+        
+        // Card 2 sparkline rendering (anomalies)
+        let sparkAnomalyPts = [];
+        for (let i = 0; i < len; i++) {
+            let sx = (i / (len - 1)) * 100;
+            let sy = data.anomalies[i] === 1 ? 5 : 18;
+            sparkAnomalyPts.push(`${sx.toFixed(0)},${sy}`);
+        }
+        kpiAnomaliesSparkline.setAttribute('points', sparkAnomalyPts.join(' '));
+    }
+
+    // Transition overlay animator
+    function runDiagnosticTransition(targetScenario, callback) {
+        overlay.classList.remove('hidden');
+        processingText.textContent = "Initiating Diagnostics...";
+        
+        const phases = [
+            'Initiating Diagnostics...',
+            'Acquiring Telemetry Stream...',
+            'Running LSTM Inference...',
+            'Scanning Isolation Forest...',
+            'Compiling Incident Report...'
+        ];
+        
+        let index = 0;
+        const interval = setInterval(() => {
+            index++;
+            if (index < phases.length) {
+                processingText.textContent = phases[index];
+            } else {
+                clearInterval(interval);
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                    callback();
+                }, 300);
+            }
+        }, 400);
+    }
+
+    // Update entire dashboard UI according to active scenario
+    function activateScenario(scenario) {
+        // Toggle scenario buttons states
+        scenarioHappyBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 " + 
+            (scenario === 'happy' ? "bg-surface-container-highest border-white/40 text-on-surface font-bold" : "bg-transparent border-outline-variant text-on-surface hover:bg-white/10");
+        
+        scenarioCriticalBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 " + 
+            (scenario === 'critical' ? "bg-error-container/40 border-error/80 text-error font-bold glow-red-strong" : "bg-error-container/20 border-error/50 text-error hover:bg-error-container/40");
+            
+        scenarioRobustBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 " + 
+            (scenario === 'robust' ? "bg-yellow-500/35 border-yellow-500/80 text-yellow-500 font-bold glow-yellow-strong" : "bg-yellow-500/15 border-yellow-500/40 text-yellow-500 hover:bg-yellow-500/25");
+
+        if (scenario === 'happy') {
+            sensorSelect.value = "P-1";
+            chartsContainer.classList.remove('hidden');
+            maintenanceContainer.classList.add('hidden');
+            
+            kpiElapsedValue.textContent = "1,440";
+            kpiElapsedTrend.textContent = "+120/hr";
+            kpiAnomaliesValue.textContent = "0";
+            kpiAnomaliesTrend.textContent = "0 / min";
+            
+            // Revert colors to default happy state
+            kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300";
+            kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-primary mb-1";
+            
+            // Status Card Green
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer";
+            kpiStatusBg.className = "absolute inset-0 bg-emerald-500/5";
+            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 glow-green-strong";
+            kpiStatusText.textContent = "NORMAL OPERATIONS";
+            kpiStatusText.className = "font-headline-md text-headline-md text-emerald-400 mt-2 relative z-10 text-center text-lg";
+            kpiStatusSubtext.textContent = "System operating within nominal margins";
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-emerald-400/80 mt-1 relative z-10 font-mono";
+            
+            // Log Table
+            logTitle.className = "font-headline-md text-headline-md text-emerald-400 text-lg flex items-center gap-2";
+            logTitleIcon.className = "material-symbols-outlined text-emerald-400";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20";
+            
+            logTbody.innerHTML = `
+                <tr class="log-row">
+                    <td colspan="5" class="p-6 text-center text-emerald-400 font-semibold" style="font-family: 'Inter', sans-serif;">
+                        ✓ Nominals Verified. Spacecraft telemetry parameters are well within normal operating margins.
+                    </td>
+                </tr>
+            `;
+            
+            updateCharts('happy');
+            
+        } else if (scenario === 'critical') {
+            sensorSelect.value = "P-1";
+            chartsContainer.classList.remove('hidden');
+            maintenanceContainer.classList.add('hidden');
+            
+            kpiElapsedValue.textContent = "1,440";
+            kpiElapsedTrend.textContent = "+120/hr";
+            kpiAnomaliesValue.textContent = "32";
+            kpiAnomaliesTrend.textContent = "↑ 4";
+            
+            kpiAnomaliesValue.className = "font-data-lg text-data-lg text-error";
+            kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-error mb-1";
+            
+            // Status Card Red blinking
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden border-error/50 glow-red-strong hover:-translate-y-1 transition-transform duration-300 cursor-pointer";
+            kpiStatusBg.className = "absolute inset-0 bg-error/10";
+            kpiStatusLed.className = "w-2 h-2 rounded-full bg-error animate-pulse";
+            kpiStatusText.textContent = "CRITICAL ALERT";
+            kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg";
+            kpiStatusSubtext.textContent = "Subsystem P-1 Integrity Compromised";
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono";
+            
+            // Log Table
+            logTitle.className = "font-headline-md text-headline-md text-error text-lg flex items-center gap-2";
+            logTitleIcon.className = "material-symbols-outlined text-error";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20";
+            
+            logTbody.innerHTML = `
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
+                    <td class="p-4 text-error font-bold">INC-2023-892</td>
+                    <td class="p-4 text-on-surface">Signal drop &gt; 2.5x STD</td>
+                    <td class="p-4 text-on-surface-variant">Isolation Forest prolonged pattern</td>
+                    <td class="p-4 text-on-surface-variant">L-Band obstruction, RFI</td>
+                    <td class="p-4 text-primary font-bold">Trigger self-calibration</td>
+                </tr>
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer">
+                    <td class="p-4 text-on-surface-variant">INC-2023-891</td>
+                    <td class="p-4 text-on-surface">Thermal spike +5C</td>
+                    <td class="p-4 text-on-surface-variant">LSTM Forecasting divergence</td>
+                    <td class="p-4 text-on-surface-variant">Solar array misalignment</td>
+                    <td class="p-4 text-primary">Adjust attitude control</td>
+                </tr>
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
+                    <td class="p-4 text-error">INC-2023-890</td>
+                    <td class="p-4 text-on-surface">Data packet loss &gt; 15%</td>
+                    <td class="p-4 text-on-surface-variant">Residual threshold breach</td>
+                    <td class="p-4 text-on-surface-variant">Ground station handover failure</td>
+                    <td class="p-4 text-primary font-bold">Switch to backup transponder</td>
+                </tr>
+                <tr class="hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer">
+                    <td class="p-4 text-on-surface-variant">INC-2023-889</td>
+                    <td class="p-4 text-on-surface">Power variance 0.65v</td>
+                    <td class="p-4 text-on-surface-variant">Contextual Anomaly</td>
+                    <td class="p-4 text-on-surface-variant">Eclipse transition anomaly</td>
+                    <td class="p-4 text-primary">Monitor battery degradation</td>
+                </tr>
+            `;
+            
+            updateCharts('critical');
+            
+        } else if (scenario === 'robust') {
+            chartsContainer.classList.add('hidden');
+            maintenanceContainer.classList.remove('hidden');
+            maintenanceSensorName.textContent = "Sensor: " + sensorSelect.options[sensorSelect.selectedIndex].text;
+            
+            kpiElapsedValue.textContent = "---";
+            kpiElapsedTrend.textContent = "PAUSED";
+            kpiAnomaliesValue.textContent = "---";
+            kpiAnomaliesTrend.textContent = "PAUSED";
+            
+            kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface-variant";
+            kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-on-surface-variant mb-1";
+            
+            // Status Card Yellow Maintenance
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-yellow-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:-translate-y-1 cursor-default";
+            kpiStatusBg.className = "absolute inset-0 bg-yellow-500/5";
+            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_#F59E0B]";
+            kpiStatusText.textContent = "MAINTENANCE MODE";
+            kpiStatusText.className = "font-headline-md text-headline-md text-yellow-500 mt-2 relative z-10 text-center text-lg";
+            kpiStatusSubtext.textContent = "Sensor under calibration / Model retraining";
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-yellow-500/80 mt-1 relative z-10 font-mono";
+            
+            // Log Table
+            logTitle.className = "font-headline-md text-headline-md text-yellow-500 text-lg flex items-center gap-2";
+            logTitleIcon.className = "material-symbols-outlined text-yellow-500";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-yellow-500/20";
+            
+            logTbody.innerHTML = `
+                <tr class="log-row" style="background-color: rgba(245, 158, 11, 0.05)">
+                    <td class="p-4 text-yellow-500 font-bold">MAINT-MODE</td>
+                    <td class="p-4 text-on-surface">Auto-Retraining Scheduled</td>
+                    <td class="p-4 text-on-surface-variant">Bypassed forecasting predictions safely</td>
+                    <td class="p-4 text-on-surface-variant">Sensor hardware recalibration cycle</td>
+                    <td class="p-4 text-yellow-500 font-bold">Retraining models in background</td>
+                </tr>
+            `;
+        } else if (scenario === 'uploaded') {
+            chartsContainer.classList.remove('hidden');
+            maintenanceContainer.classList.add('hidden');
+            
+            const upData = SCENARIO_DATA.uploaded;
+            let uploadLen = upData.actual.length;
+            let uploadAnoms = 0;
+            for (let i = 0; i < uploadLen; i++) {
+                if (upData.anomalies[i] === 1) uploadAnoms++;
+            }
+            
+            kpiElapsedValue.textContent = uploadLen.toLocaleString();
+            kpiElapsedTrend.textContent = "INJECTED";
+            kpiAnomaliesValue.textContent = uploadAnoms;
+            kpiAnomaliesTrend.textContent = "↑ " + uploadAnoms;
+            
+            if (uploadAnoms > 0) {
+                kpiAnomaliesValue.className = "font-data-lg text-data-lg text-error";
+                kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-error mb-1";
+                
+                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-error/50 glow-red-strong hover:-translate-y-1 cursor-pointer";
+                kpiStatusBg.className = "absolute inset-0 bg-error/15";
+                kpiStatusLed.className = "w-2 h-2 rounded-full bg-error animate-pulse";
+                kpiStatusText.textContent = "CRITICAL ALERT";
+                kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg";
+                kpiStatusSubtext.textContent = "Telemetry breaches found in: " + upData.filename;
+                kpiStatusSubtext.className = "font-data-sm text-data-sm text-error/90 mt-1 relative z-10 font-mono";
+                
+                logTitle.className = "font-headline-md text-headline-md text-error text-lg flex items-center gap-2";
+                logTitleIcon.className = "material-symbols-outlined text-error";
+                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20";
+                
+                logTbody.innerHTML = `
+                    <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
+                        <td class="p-4 text-error font-bold">INC-UPLOADED</td>
+                        <td class="p-4 text-on-surface">Telemetry anomaly in uploaded file</td>
+                        <td class="p-4 text-on-surface-variant">Isolation Forest detected ${uploadAnoms} anomalies</td>
+                        <td class="p-4 text-on-surface-variant">File: ${upData.filename}</td>
+                        <td class="p-4 text-primary font-bold">Perform calibration and safety check</td>
+                    </tr>
+                `;
+            } else {
+                kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300";
+                kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-primary mb-1";
+                
+                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer";
+                kpiStatusBg.className = "absolute inset-0 bg-emerald-500/5";
+                kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 glow-green-strong";
+                kpiStatusText.textContent = "NORMAL OPERATIONS";
+                kpiStatusText.className = "font-headline-md text-headline-md text-emerald-400 mt-2 relative z-10 text-center text-lg";
+                kpiStatusSubtext.textContent = "No anomalies detected in: " + upData.filename;
+                kpiStatusSubtext.className = "font-data-sm text-data-sm text-emerald-400/80 mt-1 relative z-10 font-mono";
+                
+                logTitle.className = "font-headline-md text-headline-md text-emerald-400 text-lg flex items-center gap-2";
+                logTitleIcon.className = "material-symbols-outlined text-emerald-400";
+                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20";
+                
+                logTbody.innerHTML = `
+                    <tr class="log-row">
+                        <td colspan="5" class="p-6 text-center text-emerald-400 font-semibold" style="font-family: 'Inter', sans-serif;">
+                            ✓ Ingested telemetry has been validated. No anomalies detected.
+                        </td>
+                    </tr>
+                `;
+            }
+            
+            updateCharts('uploaded');
+        }
+    }
+
+    // Hook up buttons and actions
+    scenarioHappyBtn.addEventListener('click', () => {
+        runDiagnosticTransition('happy', () => activateScenario('happy'));
+    });
+    
+    scenarioCriticalBtn.addEventListener('click', () => {
+        runDiagnosticTransition('critical', () => activateScenario('critical'));
+    });
+
+    scenarioRobustBtn.addEventListener('click', () => {
+        sensorSelect.value = "P-2";
+        runDiagnosticTransition('robust', () => activateScenario('robust'));
+    });
+    
+    runAnalysisBtn.addEventListener('click', () => {
+        const val = sensorSelect.value;
+        const scen = (val === 'P-1') ? 'happy' : 'robust';
+        runDiagnosticTransition(scen, () => activateScenario(scen));
+    });
+
+    // Sensor dropdown listener
+    sensorSelect.addEventListener('change', () => {
+        const val = sensorSelect.value;
+        if (val === 'P-1') {
+            runDiagnosticTransition('happy', () => activateScenario('happy'));
+        } else {
+            runDiagnosticTransition('robust', () => activateScenario('robust'));
+        }
+    });
+
+    // Injected uploaded scenario variable
+    const UPLOADED_SCENARIO_NAME = {{UPLOADED_SCENARIO_NAME}};
+    
+    if (UPLOADED_SCENARIO_NAME && SCENARIO_DATA[UPLOADED_SCENARIO_NAME]) {
+        activateScenario(UPLOADED_SCENARIO_NAME);
+    } else {
+        activateScenario('happy');
+    }
+</script>
+</body>
+</html>
