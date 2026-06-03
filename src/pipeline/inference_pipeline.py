@@ -1,9 +1,5 @@
-from typing import Tuple
-import os
+from typing import Tuple, Any
 import numpy as np
-import joblib     
-                        
-from tensorflow.keras.models import load_model 
 
 from src import config
 from src.data.preprocessing import create_sequences
@@ -11,45 +7,55 @@ from src.utils.residual_features import compute_rolling_features
 
 def run_inference(
     series: np.ndarray,
+    lstm_model: Any = None,
+    if_model: Any = None,
     window_size: int | None = None,
     rolling_window: int | None = None,
     threshold_scale: float = 2.0,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Luồng xử lý tích hợp (Inference Pipeline) phục vụ cho giao diện Streamlit.
-    Quy ước nhãn đầu ra: 1 là Bình thường (Normal), -1 là Bất thường (Anomaly)
-    """
+    
     if window_size is None:
         window_size = config.WINDOW_SIZE
     if rolling_window is None:
         rolling_window = config.ROLLING_WINDOW
 
-    # 1. Tiền xử lý dữ liệu (Phần của Khang)
-    series = np.asarray(series, dtype=np.float32).reshape(-1)
-    X, y_true = create_sequences(series, window_size, config.PREDICTION_DIM)
+    # 1. Xử lý đồng bộ số chiều (Zero-Padding)
+    data_2d = np.asarray(series, dtype=np.float32)
+    if data_2d.ndim == 1:
+        data_2d = data_2d.reshape(-1, 1)
 
-    # 2. KHỐI DỰ BÁO CHUỖI THỜI GIAN (LSTM)
-    if os.path.exists(config.MODEL_PATH):
-        # ✅ KHI CÓ MODEL THẬT (Kiệt - Sprint 4)
-        # model = load_model(config.MODEL_PATH)
-        # y_pred = model.predict(X).reshape(-1)
-        pass
+    # Nếu file nạp vào có ít hơn 25 kênh (ví dụ file demo chỉ có 1 cột)
+    # Ta tự động đệm thêm các cột số 0 để không bị crash mô hình LSTM
+    if data_2d.shape[1] < 25:
+        padded = np.zeros((data_2d.shape[0], 25), dtype=np.float32)
+        padded[:, :data_2d.shape[1]] = data_2d
+        data_2d = padded
+
+    # Tạo cửa sổ chuỗi thời gian
+    X, y_true = create_sequences(data_2d, window_size, config.PREDICTION_DIM)
+
+    # ---------------------------------------------------------
+    # TẦNG 1: DỰ BÁO LSTM
+    # ---------------------------------------------------------
+    if lstm_model is not None:
+        y_pred = lstm_model.predict(X, verbose=0)
     else:
-        # ⚠️ BẢN CHẠY THỬ (Khang Baseline)
-        y_pred = X[:, -1, 0].reshape(-1)
+        y_pred = X[:, -1, :] # Naive fallback
 
-    # 3. Tính toán sai số trượt (Phần kết hợp)
-    residuals = np.abs(y_true.reshape(-1) - y_pred)
+    # Lấy giá trị của kênh đầu tiên (Cột 0 - Kênh viễn trắc chính) để tính sai số
+    y_true_main = y_true[:, 0] if y_true.ndim > 1 else y_true
+    y_pred_main = y_pred[:, 0] if y_pred.ndim > 1 else y_pred
+
+    # Tính sai số tuyệt đối
+    residuals = np.abs(y_true_main.reshape(-1) - y_pred_main.reshape(-1))
     features, _ = compute_rolling_features(residuals, rolling_window)
 
-    # 4. KHỐI PHÁT HIỆN BẤT THƯỜNG (Isolation Forest)
-    if os.path.exists(config.IF_MODEL_PATH):
-        # ✅ KHI CÓ MODEL THẬT (Kiệt - Sprint 4)
-        # if_model = joblib.load(config.IF_MODEL_PATH)
-        # labels = if_model.predict(features) 
-        pass
+    # ---------------------------------------------------------
+    # TẦNG 2: PHÂN LẬP VỚI ISOLATION FOREST
+    # ---------------------------------------------------------
+    if if_model is not None:
+        labels = if_model.predict(features)
     else:
-        # ⚠️ BẢN CHẠY THỬ (Khang Heuristic)
         mean = float(np.mean(residuals))
         std = float(np.std(residuals))
         threshold = mean + threshold_scale * std

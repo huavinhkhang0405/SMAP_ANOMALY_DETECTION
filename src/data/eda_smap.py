@@ -7,7 +7,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 @dataclass
 class EdaSummary:
     channel: str
@@ -98,7 +97,6 @@ def run_eda(channel: str, split: str, data_root: str, report_dir: str, plot_limi
             label_count = int(labels.sum())
             label_ratio = label_count / float(num_samples)
 
-    # Plot signal with anomaly spans.
     os.makedirs(report_dir, exist_ok=True)
     plot_path = os.path.join(report_dir, f"eda_{channel}_{split}.png")
 

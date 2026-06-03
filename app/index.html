@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>NASA SMAP Spacecraft Health &amp; Telemetry Monitor</title>
+    <title>NASA SMAP - Giám sát Sức khỏe &amp; Viễn trắc Tàu vũ trụ</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -16,6 +16,7 @@
         }
         .glass-panel {
             background-color: rgba(38, 39, 48, 0.7);
+            -webkit-backdrop-filter: blur(16px);
             backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -56,6 +57,321 @@
                 opacity: 1;
                 transform: translateY(0);
             }
+        }
+
+        /* === DYNAMIC ANIMATION SYSTEM === */
+
+        /* 1. SVG Line Drawing Animation */
+        .chart-draw-in {
+            stroke-dasharray: var(--path-length, 2000);
+            stroke-dashoffset: var(--path-length, 2000);
+            animation: drawLine 1.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* 2. Confidence Ribbon Fade-In */
+        .ribbon-fade-in {
+            opacity: 0;
+            animation: ribbonReveal 1.2s ease-out 0.8s forwards;
+        }
+        @keyframes ribbonReveal {
+            0% { opacity: 0; transform: scaleY(0.3); }
+            100% { opacity: 1; transform: scaleY(1); }
+        }
+
+        /* 3. Anomaly Marker Pop-In */
+        .anomaly-pop-in {
+            transform-origin: center;
+            transform: scale(0);
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            60% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 4. Staggered Card Entrance */
+        .card-stagger {
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+            animation: cardSlideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .card-stagger:nth-child(1) { animation-delay: 0.05s; }
+        .card-stagger:nth-child(2) { animation-delay: 0.15s; }
+        .card-stagger:nth-child(3) { animation-delay: 0.25s; }
+        @keyframes cardSlideIn {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 5. Critical Alert Scanline Effect */
+        .scanline-effect::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,180,171,0.8), transparent);
+            animation: scanline 2.5s linear infinite;
+            z-index: 20;
+        }
+        @keyframes scanline {
+            0% { top: -2px; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* 6. Glitch Effect for Critical Transitions */
+        .glitch-text {
+            position: relative;
+            animation: glitch 0.4s linear;
+        }
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            10% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+            20% { transform: translate(3px, -2px); filter: hue-rotate(0deg); }
+            30% { transform: translate(-2px, -1px); clip-path: inset(40% 0 30% 0); }
+            40% { transform: translate(2px, 1px); clip-path: inset(20% 0 50% 0); }
+            50% { transform: translate(-1px, 2px); clip-path: inset(60% 0 10% 0); }
+            60% { transform: translate(1px, -1px); clip-path: none; }
+            70% { transform: translate(0); filter: none; }
+            100% { transform: translate(0); }
+        }
+
+        /* 7. Status LED Breathing */
+        .led-breathe-green {
+            animation: breatheGreen 3s ease-in-out infinite;
+        }
+        @keyframes breatheGreen {
+            0%, 100% { box-shadow: 0 0 4px #10B981, 0 0 8px #10B981; }
+            50% { box-shadow: 0 0 8px #10B981, 0 0 20px #10B981, 0 0 40px rgba(16,185,129,0.3); }
+        }
+        .led-breathe-red {
+            animation: breatheRed 1.2s ease-in-out infinite;
+        }
+        @keyframes breatheRed {
+            0%, 100% { box-shadow: 0 0 4px #ff4444, 0 0 8px #93000a; transform: scale(1); }
+            50% { box-shadow: 0 0 12px #ff4444, 0 0 30px #93000a, 0 0 50px rgba(147,0,10,0.4); transform: scale(1.3); }
+        }
+        .led-breathe-yellow {
+            animation: breatheYellow 2s ease-in-out infinite;
+        }
+        @keyframes breatheYellow {
+            0%, 100% { box-shadow: 0 0 4px #F59E0B, 0 0 8px #F59E0B; }
+            50% { box-shadow: 0 0 8px #F59E0B, 0 0 20px #F59E0B, 0 0 40px rgba(245,158,11,0.3); }
+        }
+
+        /* 8. Radar Sweep for Maintenance */
+        .radar-sweep {
+            position: relative;
+            overflow: hidden;
+        }
+        .radar-sweep::before {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 200%; height: 200%;
+            transform: translate(-50%, -50%);
+            background: conic-gradient(
+                from 0deg,
+                transparent 0deg,
+                rgba(245, 158, 11, 0.08) 30deg,
+                rgba(245, 158, 11, 0.15) 60deg,
+                transparent 90deg,
+                transparent 360deg
+            );
+            animation: radarSweep 4s linear infinite;
+            border-radius: 50%;
+            z-index: 0;
+        }
+        @keyframes radarSweep {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* 9. Ripple Effect for Buttons */
+        .ripple-container {
+            position: relative;
+            overflow: hidden;
+        }
+        .ripple-container .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: rippleEffect 0.6s ease-out;
+            pointer-events: none;
+        }
+        @keyframes rippleEffect {
+            to { transform: scale(4); opacity: 0; }
+        }
+
+        /* 10. Dashboard Section Slide */
+        .section-slide-in {
+            opacity: 0;
+            transform: translateY(40px);
+            animation: sectionSlide 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        @keyframes sectionSlide {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 11. Typewriter Cursor */
+        .typewriter-cursor::after {
+            content: '|';
+            animation: blink 0.7s infinite;
+            margin-left: 2px;
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* 12. Number Count-Up Highlight */
+        .number-flash {
+            animation: numberFlash 0.8s ease-out;
+        }
+        @keyframes numberFlash {
+            0% { color: white; text-shadow: 0 0 20px currentColor; transform: scale(1.15); }
+            100% { text-shadow: none; transform: scale(1); }
+        }
+
+        /* 13. Table Row Slide-In */
+        .row-slide-in {
+            opacity: 0;
+            transform: translateX(-20px);
+            animation: rowSlide 0.4s ease-out forwards;
+        }
+        @keyframes rowSlide {
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* 14. Sparkline Dash Animation */
+        .sparkline-animate {
+            stroke-dasharray: 200;
+            stroke-dashoffset: 200;
+            animation: sparklineDraw 1.5s ease-out 0.3s forwards;
+        }
+        @keyframes sparklineDraw {
+            to { stroke-dashoffset: 0; }
+        }
+
+        /* 15. Alert Banner Shake */
+        .alert-shake {
+            animation: shake 0.5s ease-in-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            15% { transform: translateX(-6px) rotate(-0.5deg); }
+            30% { transform: translateX(5px) rotate(0.5deg); }
+            45% { transform: translateX(-4px) rotate(-0.3deg); }
+            60% { transform: translateX(3px) rotate(0.3deg); }
+            75% { transform: translateX(-2px); }
+        }
+
+        /* 16. Scenario Transition Wipe */
+        .scene-wipe {
+            position: relative;
+        }
+        .scene-wipe::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; bottom: 0;
+            width: 0;
+            background: linear-gradient(90deg, transparent, rgba(196,198,207,0.05), transparent);
+            animation: wipe 0.8s ease-out forwards;
+            z-index: 30;
+            pointer-events: none;
+        }
+        @keyframes wipe {
+            0% { width: 0; left: 0; }
+            50% { width: 100%; left: 0; }
+            100% { width: 0; left: 100%; }
+        }
+
+        /* 17. Maintenance Progress Bar */
+        .progress-bar-animated {
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #F59E0B, transparent);
+            animation: progressSlide 2.5s ease-in-out infinite;
+            border-radius: 2px;
+        }
+        @keyframes progressSlide {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        /* 18. Particle Float (for critical) */
+        .particle {
+            position: absolute;
+            width: 3px; height: 3px;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleFloat 3s ease-in-out infinite;
+        }
+        @keyframes particleFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+            25% { transform: translateY(-15px) translateX(5px); opacity: 1; }
+            50% { transform: translateY(-25px) translateX(-3px); opacity: 0.8; }
+            75% { transform: translateY(-10px) translateX(8px); opacity: 0.4; }
+        }
+
+        /* 19. Live Data Pulse Ring */
+        .pulse-ring {
+            position: relative;
+        }
+        .pulse-ring::after {
+            content: '';
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            animation: pulseRing 2s ease-out infinite;
+        }
+        @keyframes pulseRing {
+            0% { width: 100%; height: 100%; opacity: 1; }
+            100% { width: 250%; height: 250%; opacity: 0; }
+        }
+
+        /* 20. Content Crossfade */
+        .crossfade-enter {
+            animation: crossfadeIn 0.5s ease-out forwards;
+        }
+        @keyframes crossfadeIn {
+            0% { opacity: 0; filter: blur(4px); transform: scale(0.98); }
+            100% { opacity: 1; filter: blur(0); transform: scale(1); }
+        }
+        .crossfade-exit {
+            animation: crossfadeOut 0.3s ease-in forwards;
+        }
+        @keyframes crossfadeOut {
+            0% { opacity: 1; filter: blur(0); }
+            100% { opacity: 0; filter: blur(4px); transform: scale(0.98); }
+        }
+
+        /* 21. Warning Icon Bounce */
+        .icon-bounce {
+            animation: iconBounce 2s ease-in-out infinite;
+        }
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0); }
+            15% { transform: translateY(-6px); }
+            30% { transform: translateY(0); }
+            45% { transform: translateY(-3px); }
+            60% { transform: translateY(0); }
+        }
+
+        /* 22. Emergency border flash */
+        .border-flash-red {
+            animation: borderFlash 1.5s ease-in-out infinite;
+        }
+        @keyframes borderFlash {
+            0%, 100% { border-color: rgba(147, 0, 10, 0.3); }
+            50% { border-color: rgba(255, 180, 171, 0.8); }
         }
     </style>
     <script id="tailwind-config">
@@ -146,7 +462,6 @@
     </script>
 </head>
 <body class="bg-background text-on-surface font-body-md text-body-md overflow-x-hidden min-h-screen flex">
-<!-- JSON Component: SideNavBar -->
 <nav class="hidden md:flex flex-col h-screen w-72 fixed left-0 top-0 bg-surface-container-low/70 backdrop-blur-xl border-r border-white/10 shadow-xl py-base z-50">
 <div class="px-gutter mb-8 mt-4 flex items-center gap-3">
 <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
@@ -154,37 +469,36 @@
 </div>
 <div>
 <h1 class="font-headline-md text-headline-md font-bold text-on-surface text-lg">NASA SMAP</h1>
-<p class="font-label-caps text-label-caps text-on-surface-variant">Mission Control</p>
+<p class="font-label-caps text-label-caps text-on-surface-variant">Trung tâm Điều khiển</p>
 </div>
 </div>
 <ul class="flex flex-col gap-1 px-2 mb-8">
 <li>
 <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary font-bold bg-primary-container/30 border-r-2 border-primary transition-all duration-200" href="#">
 <span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
-                    Telemetry Dashboard
+                    Bảng điều khiển Viễn trắc
                 </a>
 </li>
 <li>
 <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
 <span class="material-symbols-outlined" data-icon="analytics">analytics</span>
-                    Health Analytics
+                    Phân tích Sức khỏe
                 </a>
 </li>
 <li>
 <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
 <span class="material-symbols-outlined" data-icon="memory">memory</span>
-                    AI Subsystems
+                    Hệ thống AI
                 </a>
 </li>
 <li>
 <a class="flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-white/5 hover:text-on-surface transition-all duration-200 active:scale-95" href="#">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
-                    Configuration
+                    Cấu hình
                 </a>
 </li>
 </ul>
 <div class="px-gutter mt-auto flex flex-col gap-4">
-<!-- Demo Scenarios -->
 <div class="flex flex-col gap-2 mb-2">
 <button id="scenario-happy-btn" class="w-full py-2 bg-surface-container-highest border border-outline-variant text-on-surface font-label-caps text-xs rounded-lg hover:bg-white/10 transition-colors duration-200" type="button">
                     Kịch bản 1: Quỹ đạo Bình yên
@@ -196,35 +510,31 @@
                     Kịch bản 3: Kiểm soát Ngoại lệ
                 </button>
 </div>
-<!-- Control Panel -->
 <div class="glass-panel p-4 rounded-xl flex flex-col gap-4">
-<h2 class="font-label-caps text-label-caps text-primary uppercase">Operations Pipeline</h2>
-<!-- File Upload -->
+<h2 class="font-label-caps text-label-caps text-primary uppercase">Quy trình Vận hành</h2>
 <div id="upload-trigger" class="border border-dashed border-outline-variant rounded-lg p-4 text-center cursor-pointer hover:bg-white/5 hover:border-primary/50 transition-all duration-300">
 <span class="material-symbols-outlined text-on-surface-variant mb-2" data-icon="upload_file">upload_file</span>
-<p class="font-data-sm text-data-sm text-on-surface-variant text-xs">Inject Telemetry Data Packet</p>
+<p class="font-data-sm text-data-sm text-on-surface-variant text-xs">Nạp Gói dữ liệu Viễn trắc</p>
 </div>
 <input type="file" id="real-file-uploader" class="hidden" accept=".npy,.csv,.txt">
-<!-- Dropdown -->
 <div class="flex flex-col gap-1">
-<label class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">Select Subsystem Sensor</label>
+<label class="font-label-caps text-label-caps text-on-surface-variant text-[10px]">Chọn Cảm biến Hệ thống phụ</label>
 <select id="sensor-select" class="bg-surface-container border border-outline-variant rounded-lg p-2 font-data-sm text-xs text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-colors duration-200 cursor-pointer">
-<option value="P-1">L-Band Radiometer - Channel P-1</option>
-<option value="P-2">L-Band Radiometer - Channel P-2</option>
-<option value="T-1">Thermal Control - Sensor T-1</option>
+<option value="P-1">Bức xạ kế L-Band - Kênh P-1</option>
+<option value="P-2">Bức xạ kế L-Band - Kênh P-2</option>
+<option value="T-1">Kiểm soát Nhiệt - Cảm biến T-1</option>
 </select>
 </div>
-<!-- Sliders -->
 <div class="flex flex-col gap-1">
 <label class="font-label-caps text-label-caps text-on-surface-variant flex justify-between text-[10px]">
-<span>Noise Contamination (IF)</span>
+<span>Nhiễu Nhiễm (IF)</span>
 <span id="noise-slider-val" class="text-primary">0.05</span>
 </label>
 <input id="noise-slider" class="w-full accent-primary cursor-pointer transition-all duration-200" max="0.2" min="0.01" step="0.01" type="range" value="0.05"/>
 </div>
 <div class="flex flex-col gap-1">
 <label class="font-label-caps text-label-caps text-on-surface-variant flex justify-between text-[10px]">
-<span>Detection Threshold</span>
+<span>Ngưỡng Phát hiện</span>
 <span id="thresh-slider-val" class="text-primary">2.5σ</span>
 </label>
 <input id="thresh-slider" class="w-full accent-primary cursor-pointer transition-all duration-200" max="5.0" min="1.0" step="0.1" type="range" value="2.5"/>
@@ -232,20 +542,17 @@
 </div>
 <button class="w-full py-3 bg-primary text-on-primary font-bold rounded-lg hover:bg-primary/90 hover:shadow-[0_0_15px_rgba(196,198,207,0.3)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-2" id="run-analysis-btn">
 <span class="material-symbols-outlined" data-icon="play_arrow">play_arrow</span>
-                 Execute Diagnostic
+                 Chạy Chẩn đoán
              </button>
 </div>
 </nav>
-<!-- Main Content Area -->
 <main class="flex-1 ml-0 md:ml-72 flex flex-col min-h-screen relative">
-<!-- JSON Component: TopNavBar -->
 <header class="fixed top-0 right-0 left-0 md:left-72 h-16 bg-surface-dim/80 backdrop-blur-md border-b border-white/10 shadow-sm flex items-center justify-between px-gutter w-auto md:w-[calc(100%-18rem)] z-40">
-<h1 class="font-headline-md text-headline-md tracking-tight text-on-surface hidden md:block">NASA SMAP Spacecraft Health &amp; Telemetry Monitor</h1>
-<!-- Search & Actions -->
+<h1 class="font-headline-md text-headline-md tracking-tight text-on-surface hidden md:block">NASA SMAP - Giám sát Sức khỏe &amp; Viễn trắc Tàu vũ trụ</h1>
 <div class="flex items-center gap-4 ml-auto">
 <div class="relative hidden sm:block">
 <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm" data-icon="search">search</span>
-<input class="bg-surface-container border border-outline-variant rounded-full pl-9 pr-4 py-1.5 font-data-sm text-data-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface w-64 transition-all duration-300 focus:w-72" placeholder="Search telemetry streams..." type="text"/>
+<input class="bg-surface-container border border-outline-variant rounded-full pl-9 pr-4 py-1.5 font-data-sm text-data-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none text-on-surface w-64 transition-all duration-300 focus:w-72" placeholder="Tìm kiếm luồng viễn trắc..." type="text"/>
 </div>
 <div class="flex items-center gap-3">
 <button class="text-on-surface-variant hover:text-primary transition-colors duration-200 cursor-pointer active:scale-90">
@@ -260,14 +567,11 @@
 </div>
 </div>
 </header>
-<!-- Dashboard Content -->
-<div class="pt-24 px-container-margin pb-container-margin flex flex-col gap-6 max-w-[1600px] w-full mx-auto fade-in-up">
-<!-- KPI Row -->
+<div class="pt-24 px-container-margin pb-container-margin flex flex-col gap-6 max-w-[1600px] w-full mx-auto fade-in-up dashboard-content scene-wipe">
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-<!-- Card 1 -->
-<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default">
+<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default kpi-card card-stagger">
 <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Mission Elapsed Time (Timesteps)</h3>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Thời gian Nhiệm vụ (Bước thời gian)</h3>
 <div class="mt-4 flex items-end gap-3 relative z-10">
 <span id="kpi-elapsed-value" class="font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300">1,440</span>
 <span id="kpi-elapsed-trend" class="font-data-sm text-data-sm text-primary mb-1">+120/hr</span>
@@ -278,10 +582,9 @@
 </svg>
 </div>
 </div>
-<!-- Card 2 -->
-<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default">
+<div class="glass-panel p-card-padding rounded-xl flex flex-col justify-between hover:bg-surface-container/50 hover:-translate-y-1 hover:shadow-lg transition-all duration-300 group relative overflow-hidden cursor-default kpi-card card-stagger">
 <div class="absolute inset-0 bg-gradient-to-br from-error/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Sensor Anomalies Detected</h3>
+<h3 class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider relative z-10">Bất thường Cảm biến Phát hiện</h3>
 <div class="mt-4 flex items-end gap-3 relative z-10">
 <span id="kpi-anomalies-value" class="font-data-lg text-data-lg text-error">32</span>
 <span id="kpi-anomalies-trend" class="font-data-sm text-data-sm text-error mb-1">↑ 4</span>
@@ -292,59 +595,59 @@
 </svg>
 </div>
 </div>
-<!-- Card 3: Alert -->
 <div id="kpi-status-card" class="glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden border-error/50 glow-red-strong hover:-translate-y-1 transition-transform duration-300 cursor-pointer">
 <div id="kpi-status-bg" class="absolute inset-0 bg-error/10"></div>
+<div id="kpi-status-particles"></div>
 <h3 class="font-label-caps text-label-caps text-error uppercase tracking-widest relative z-10 flex items-center gap-2">
 <span id="kpi-status-led" class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
-                        ALERT STATUS
+                        TRẠNG THÁI CẢNH BÁO
                     </h3>
-<span id="kpi-status-text" class="font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg">CRITICAL - Severe Sensor Degradation Detected</span>
-<p id="kpi-status-subtext" class="font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono">Subsystem P-1 Integrity Compromised</p>
+<span id="kpi-status-text" class="font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg">CẢNH BÁO NGHIÊM TRỌNG - Phát hiện Suy giảm Cảm biến Nghiêm trọng</span>
+<p id="kpi-status-subtext" class="font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono">Tính toàn vẹn Hệ thống phụ P-1 bị xâm phạm</p>
 </div>
 </div>
 
-<!-- Exception Maintenance Warning Container -->
-<div id="maintenance-container" class="hidden glass-panel p-8 rounded-xl text-center border-yellow-500/40 shadow-lg max-w-2xl mx-auto my-12 fade-in-up">
-    <h2 class="font-headline-md text-headline-md text-yellow-500 font-bold mb-4 flex items-center justify-center gap-2 text-xl">
-        <span class="material-symbols-outlined text-yellow-500 text-3xl">warning</span>
-        Sensor Under Calibration
+<div id="maintenance-container" class="hidden glass-panel p-8 rounded-xl text-center border-yellow-500/40 shadow-lg max-w-2xl mx-auto my-12 fade-in-up radar-sweep">
+    <h2 class="font-headline-md text-headline-md text-yellow-500 font-bold mb-4 flex items-center justify-center gap-2 text-xl relative z-10">
+        <span class="material-symbols-outlined text-yellow-500 text-3xl icon-bounce">warning</span>
+        Cảm biến đang Hiệu chuẩn
     </h2>
-    <p class="font-data-sm text-data-sm text-on-surface-variant font-mono mb-4 text-sm" id="maintenance-sensor-name">
-        Sensor: L-Band Radiometer - Channel P-2
+    <p class="font-data-sm text-data-sm text-on-surface-variant font-mono mb-4 text-sm relative z-10" id="maintenance-sensor-name">
+        Cảm biến: Bức xạ kế L-Band - Kênh P-2
     </p>
-    <hr class="border-yellow-500/20 my-6">
-    <p class="text-on-surface text-lg italic font-semibold" style="color: #F59E0B;">
+    <div class="overflow-hidden w-3/4 mx-auto my-4 relative z-10"><div class="progress-bar-animated w-full"></div></div>
+    <p class="text-on-surface text-lg italic font-semibold relative z-10" style="color: #F59E0B;" id="maintenance-quote">
         "Cảm biến đang bảo trì / Mô hình đang Retraining"
     </p>
-    <p class="text-on-surface-variant text-sm mt-4 leading-relaxed">
-        The telemetry analysis pipeline has gracefully bypassed this sensor. LSTM forecasting and Isolation Forest scorer are currently undergoing automated retraining in the backend.
+    <p class="text-on-surface-variant text-sm mt-4 leading-relaxed relative z-10">
+        Đường ống phân tích viễn trắc đã bỏ qua cảm biến này một cách an toàn. Mô hình dự báo LSTM và bộ chấm điểm Isolation Forest đang được huấn luyện lại tự động trong nền.
     </p>
+    <div class="mt-6 flex items-center justify-center gap-3 relative z-10">
+        <div class="w-3 h-3 rounded-full bg-yellow-500/60 animate-ping"></div>
+        <span class="font-data-sm text-data-sm text-yellow-500/70 font-mono" id="maintenance-status-text">Đang huấn luyện lại...</span>
+    </div>
 </div>
 
-<!-- Charts Area -->
 <div id="charts-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-<!-- Chart 1: LSTM -->
 <div class="glass-panel rounded-xl p-card-padding flex flex-col hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
 <div class="flex justify-between items-center mb-6">
-<h3 class="font-headline-md text-headline-md text-on-surface text-lg">LSTM Forecasting Performance</h3>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Hiệu suất Dự báo LSTM</h3>
 <div class="flex gap-4">
 <div class="flex items-center gap-2">
 <div class="w-3 h-0.5 bg-primary"></div>
-<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Telemetry (Actual)</span>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Viễn trắc (Thực tế)</span>
 </div>
 <div class="flex items-center gap-2">
 <div class="w-3 h-0.5 bg-tertiary border-dashed border-b border-tertiary"></div>
-<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">AI Predicted</span>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">AI Dự đoán</span>
 </div>
 <div class="flex items-center gap-2">
 <div class="w-3 h-3 bg-[rgba(213,195,186,0.15)] border border-[rgba(213,195,186,0.3)]"></div>
-<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Conf Ribbon (±2.5σ)</span>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Dải Tin cậy (±2.5σ)</span>
 </div>
 </div>
 </div>
 <div class="flex-1 w-full min-h-[300px] relative border-l border-b border-white/10 p-2 group">
-<!-- Y Axis labels -->
 <div class="absolute -left-8 top-0 bottom-0 flex flex-col justify-between font-data-sm text-[10px] text-on-surface-variant py-2">
 <span>1.0</span>
 <span>0.5</span>
@@ -352,7 +655,6 @@
 <span>-0.5</span>
 <span>-1.0</span>
 </div>
-<!-- Grid Lines -->
 <div class="absolute inset-0 flex flex-col justify-between pointer-events-none px-2 py-2">
 <div class="w-full border-t border-white/5 h-0"></div>
 <div class="w-full border-t border-white/5 h-0"></div>
@@ -360,18 +662,12 @@
 <div class="w-full border-t border-white/5 h-0"></div>
 <div class="w-full border-t border-white/5 h-0"></div>
 </div>
-<!-- SVG Chart Simulation -->
 <svg id="lstm-svg" class="w-full h-full preserve-aspect-ratio-none overflow-visible" viewbox="0 0 500 200">
-<!-- Confidence Ribbon -->
 <path id="lstm-ribbon" class="chart-confidence"></path>
-<!-- Actual Line -->
 <path id="lstm-actual" class="chart-actual transition-all duration-700 ease-in-out"></path>
-<!-- Predicted Line -->
 <path id="lstm-predicted" class="chart-predicted transition-all duration-700 ease-in-out"></path>
-<!-- Anomaly Highlights -->
 <g id="lstm-anomalies"></g>
 </svg>
-<!-- X Axis labels -->
 <div class="absolute -bottom-6 left-0 right-0 flex justify-between font-data-sm text-[10px] text-on-surface-variant px-2 font-mono">
 <span>T-04:00</span>
 <span>T-03:00</span>
@@ -381,34 +677,28 @@
 </div>
 </div>
 </div>
-<!-- Chart 2: Anomalies -->
 <div class="glass-panel rounded-xl p-card-padding flex flex-col relative hover:-translate-y-1 hover:shadow-xl transition-all duration-300">
 <div class="flex justify-between items-center mb-6">
-<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Anomaly Detection Overlay</h3>
+<h3 class="font-headline-md text-headline-md text-on-surface text-lg">Lớp phủ Phát hiện Bất thường</h3>
 <div class="flex items-center gap-2">
 <div class="w-2 h-2 rounded-full bg-error animate-pulse"></div>
-<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Confirmed Breach</span>
+<span class="font-data-sm text-data-sm text-on-surface-variant font-mono text-xs">Vi phạm Xác nhận</span>
 </div>
 </div>
 <div class="flex-1 w-full min-h-[300px] relative border-l border-b border-white/10 p-2">
-<!-- SVG Chart Simulation -->
 <svg id="anomaly-svg" class="w-full h-full preserve-aspect-ratio-none overflow-visible" viewbox="0 0 500 200">
-<!-- Residual Line -->
 <path id="anomaly-residual" class="chart-actual opacity-50"></path>
-<!-- Threshold Line -->
 <line id="anomaly-threshold" opacity="0.5" stroke="#ffb4ab" stroke-dasharray="2 2" stroke-width="1" x1="0" x2="500" y1="60" y2="60"></line>
-<!-- Anomaly Markers -->
 <g id="anomaly-markers"></g>
 </svg>
 </div>
 </div>
 </div>
-<!-- Bottom Section: Logs / Incident Analysis Report -->
 <div id="log-table-container" class="glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20">
 <div id="log-expander" class="p-card-padding border-b border-white/10 flex justify-between items-center bg-surface-container-low/50 cursor-pointer hover:bg-surface-container transition-colors duration-200">
 <h3 id="log-title" class="font-headline-md text-headline-md text-error text-lg flex items-center gap-2">
 <span id="log-title-icon" class="material-symbols-outlined text-error" data-icon="report">report</span>
-                        Incident Analysis Report
+                        Báo cáo Phân tích Sự cố
                     </h3>
 <span class="material-symbols-outlined text-on-surface-variant transition-transform duration-300 animate-none" data-icon="expand_more" id="log-expander-icon">expand_more</span>
 </div>
@@ -416,26 +706,31 @@
 <table class="w-full text-left border-collapse">
 <thead>
 <tr class="bg-surface-container/30 border-b border-white/10">
-<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Incident ID</th>
-<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Phenomenon</th>
-<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">AI Analysis</th>
-<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Potential Root Cause</th>
-<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Recommended Action</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Mã Sự cố</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Hiện tượng</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Phân tích AI</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Nguyên nhân Tiềm năng</th>
+<th class="p-4 font-label-caps text-label-caps text-on-surface-variant uppercase">Hành động Khuyến nghị</th>
 </tr>
 </thead>
 <tbody id="log-tbody" class="font-data-sm text-data-sm font-mono">
-<!-- Populated dynamically -->
 </tbody>
 </table>
 </div>
 </div>
 </div>
 </main>
-<!-- Overlay Spinner (Hidden by default, used for demonstration) -->
 <div class="hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300" id="processing-overlay">
-<div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 border-primary/30 glow-red">
-<div class="w-12 h-12 border-4 border-surface-container-highest border-t-primary rounded-full animate-spin"></div>
-<p class="font-label-caps text-label-caps text-primary tracking-widest uppercase mt-2 animate-pulse transition-all duration-300 text-center" id="processing-text">Initiating Diagnostics...</p>
+<div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-4 border-primary/30 glow-red" style="min-width:320px;">
+<div class="relative">
+    <div class="w-16 h-16 border-4 border-surface-container-highest border-t-primary rounded-full animate-spin"></div>
+    <div class="w-10 h-10 border-4 border-surface-container-highest border-b-tertiary rounded-full animate-spin absolute top-3 left-3" style="animation-direction: reverse; animation-duration: 1.5s;"></div>
+</div>
+<p class="font-label-caps text-label-caps text-primary tracking-widest uppercase mt-2 transition-all duration-300 text-center" id="processing-text">Đang khởi tạo Chẩn đoán...</p>
+<div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-2">
+    <div id="processing-progress" class="h-full bg-gradient-to-r from-primary via-tertiary to-primary rounded-full transition-all duration-400" style="width: 0%;"></div>
+</div>
+<p class="font-data-sm text-[10px] text-on-surface-variant font-mono" id="processing-detail">Đang chuẩn bị hệ thống phụ...</p>
 </div>
 </div>
 <script>
@@ -795,178 +1090,440 @@
         kpiAnomaliesSparkline.setAttribute('points', sparkAnomalyPts.join(' '));
     }
 
-    // Transition overlay animator
+    // === ANIMATION HELPER FUNCTIONS ===
+
+    // Animated Number Counter
+    function animateNumber(element, endValue, duration = 800, prefix = '', suffix = '') {
+        const startValue = 0;
+        const startTime = performance.now();
+        const isInteger = Number.isInteger(endValue);
+        
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+            const current = startValue + (endValue - startValue) * eased;
+            
+            if (isInteger) {
+                element.textContent = prefix + Math.round(current).toLocaleString() + suffix;
+            } else {
+                element.textContent = prefix + current.toFixed(1) + suffix;
+            }
+            
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                element.textContent = prefix + (isInteger ? endValue.toLocaleString() : endValue.toFixed(1)) + suffix;
+                element.classList.add('number-flash');
+                setTimeout(() => element.classList.remove('number-flash'), 800);
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
+    // Typewriter Effect
+    function typewriterEffect(element, text, speed = 40) {
+        element.textContent = '';
+        element.classList.add('typewriter-cursor');
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else {
+                setTimeout(() => element.classList.remove('typewriter-cursor'), 1500);
+            }
+        }
+        type();
+    }
+
+    // SVG Path Drawing Animation
+    function animateSVGPath(pathElement, delay = 0) {
+        if (!pathElement || !pathElement.getAttribute('d')) return;
+        const length = pathElement.getTotalLength ? pathElement.getTotalLength() : 2000;
+        pathElement.style.setProperty('--path-length', length);
+        pathElement.classList.remove('chart-draw-in');
+        void pathElement.offsetWidth; // force reflow
+        pathElement.style.animationDelay = delay + 'ms';
+        pathElement.classList.add('chart-draw-in');
+    }
+
+    // Add Ripple to Button
+    function addRipple(button, e) {
+        const rect = button.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.className = 'ripple';
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        button.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+    }
+
+    // Create Floating Particles
+    function createParticles(container, count, color) {
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.background = color;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = (Math.random() * 3) + 's';
+            particle.style.animationDuration = (2 + Math.random() * 2) + 's';
+            container.appendChild(particle);
+        }
+    }
+
+    // Staggered Card Re-entrance (skip status card to avoid animation conflicts)
+    function reAnimateCards() {
+        const cards = document.querySelectorAll('.kpi-card:not(#kpi-status-card)');
+        cards.forEach((card, i) => {
+            card.classList.remove('card-stagger');
+            void card.offsetWidth;
+            card.classList.add('card-stagger');
+        });
+        // Animate status card separately with crossfade (no animation property conflict)
+        kpiStatusCard.style.opacity = '0';
+        kpiStatusCard.style.transform = 'translateY(20px)';
+        kpiStatusCard.style.transition = 'opacity 0.5s ease-out 0.25s, transform 0.5s ease-out 0.25s';
+        requestAnimationFrame(() => {
+            kpiStatusCard.style.opacity = '1';
+            kpiStatusCard.style.transform = 'translateY(0)';
+        });
+    }
+
+    // Animate Table Rows
+    function animateTableRows() {
+        const rows = logTbody.querySelectorAll('tr');
+        rows.forEach((row, i) => {
+            row.classList.add('row-slide-in');
+            row.style.animationDelay = (i * 0.1) + 's';
+        });
+    }
+
+    // Animate Sparklines
+    function animateSparkline(polyline) {
+        polyline.classList.remove('sparkline-animate');
+        void polyline.offsetWidth;
+        polyline.classList.add('sparkline-animate');
+    }
+
+    // Scene wipe effect on main content
+    function triggerSceneWipe() {
+        const content = document.querySelector('.dashboard-content');
+        if (content) {
+            content.classList.remove('scene-wipe');
+            void content.offsetWidth;
+            content.classList.add('scene-wipe');
+        }
+    }
+
+    // Maintenance cycling status text
+    let maintenanceInterval = null;
+    function startMaintenanceCycle() {
+        if (maintenanceInterval) clearInterval(maintenanceInterval);
+        const statuses = [
+            'Đang huấn luyện lại...',
+            'Đang hiệu chuẩn mảng cảm biến...',
+            'Đang cập nhật trọng số LSTM...',
+            'Đang xác thực Isolation Forest...',
+            'Đang đồng bộ tham số mô hình...'
+        ];
+        let idx = 0;
+        const el = document.getElementById('maintenance-status-text');
+        if (!el) return;
+        maintenanceInterval = setInterval(() => {
+            idx = (idx + 1) % statuses.length;
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.textContent = statuses[idx];
+                el.style.opacity = '1';
+            }, 200);
+        }, 3000);
+    }
+    function stopMaintenanceCycle() {
+        if (maintenanceInterval) {
+            clearInterval(maintenanceInterval);
+            maintenanceInterval = null;
+        }
+    }
+
+    // Add ripple class to scenario buttons
+    [scenarioHappyBtn, scenarioCriticalBtn, scenarioRobustBtn].forEach(btn => {
+        btn.classList.add('ripple-container');
+        btn.addEventListener('mousedown', (e) => addRipple(btn, e));
+    });
+
+    // Transition overlay animator (ENHANCED)
     function runDiagnosticTransition(targetScenario, callback) {
         overlay.classList.remove('hidden');
-        processingText.textContent = "Initiating Diagnostics...";
+        const progressBar = document.getElementById('processing-progress');
+        const detailText = document.getElementById('processing-detail');
+        processingText.textContent = "Đang khởi tạo Chẩn đoán...";
+        if (progressBar) progressBar.style.width = '0%';
         
         const phases = [
-            'Initiating Diagnostics...',
-            'Acquiring Telemetry Stream...',
-            'Running LSTM Inference...',
-            'Scanning Isolation Forest...',
-            'Compiling Incident Report...'
+            { text: 'Đang khởi tạo Chẩn đoán...', detail: 'Kết nối đến bus tàu vũ trụ...', progress: 10 },
+            { text: 'Đang thu nhận Luồng Viễn trắc...', detail: 'Đệm gói viễn trắc L-Band...', progress: 30 },
+            { text: 'Đang chạy Suy luận LSTM...', detail: 'Forward pass trên cửa sổ 252 bước thời gian...', progress: 55 },
+            { text: 'Đang quét Isolation Forest...', detail: 'Tính điểm bất thường (n_estimators=100)...', progress: 80 },
+            { text: 'Đang biên soạn Báo cáo Sự cố...', detail: 'Tổng hợp phân loại vi phạm...', progress: 100 }
         ];
         
         let index = 0;
         const interval = setInterval(() => {
             index++;
             if (index < phases.length) {
-                processingText.textContent = phases[index];
+                processingText.textContent = phases[index].text;
+                if (detailText) detailText.textContent = phases[index].detail;
+                if (progressBar) progressBar.style.width = phases[index].progress + '%';
             } else {
                 clearInterval(interval);
+                // Crossfade out the main content area before switching
+                const dashContent = document.querySelector('.dashboard-content');
+                if (dashContent) dashContent.classList.add('crossfade-exit');
+                
                 setTimeout(() => {
                     overlay.classList.add('hidden');
+                    if (dashContent) {
+                        dashContent.classList.remove('crossfade-exit');
+                        dashContent.classList.add('crossfade-enter');
+                        setTimeout(() => dashContent.classList.remove('crossfade-enter'), 500);
+                    }
                     callback();
+                    triggerSceneWipe();
                 }, 300);
             }
-        }, 400);
+        }, 450);
     }
 
     // Update entire dashboard UI according to active scenario
     function activateScenario(scenario) {
-        // Toggle scenario buttons states
-        scenarioHappyBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 " + 
+        const particlesContainer = document.getElementById('kpi-status-particles');
+        
+        // Stop any previous maintenance cycle
+        stopMaintenanceCycle();
+        
+        // Remove previous scenario-specific effects
+        kpiStatusCard.classList.remove('scanline-effect', 'border-flash-red', 'alert-shake');
+        
+        // Toggle scenario buttons states (with ripple container preserved)
+        scenarioHappyBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 ripple-container " + 
             (scenario === 'happy' ? "bg-surface-container-highest border-white/40 text-on-surface font-bold" : "bg-transparent border-outline-variant text-on-surface hover:bg-white/10");
         
-        scenarioCriticalBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 " + 
+        scenarioCriticalBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 mb-2 ripple-container " + 
             (scenario === 'critical' ? "bg-error-container/40 border-error/80 text-error font-bold glow-red-strong" : "bg-error-container/20 border-error/50 text-error hover:bg-error-container/40");
             
-        scenarioRobustBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 " + 
+        scenarioRobustBtn.className = "w-full py-2 border font-label-caps text-xs rounded-lg transition-colors duration-200 ripple-container " + 
             (scenario === 'robust' ? "bg-yellow-500/35 border-yellow-500/80 text-yellow-500 font-bold glow-yellow-strong" : "bg-yellow-500/15 border-yellow-500/40 text-yellow-500 hover:bg-yellow-500/25");
+
+        // Re-animate KPI cards stagger entrance
+        reAnimateCards();
 
         if (scenario === 'happy') {
             sensorSelect.value = "P-1";
             chartsContainer.classList.remove('hidden');
             maintenanceContainer.classList.add('hidden');
             
-            kpiElapsedValue.textContent = "1,440";
+            // Animated number counting
+            animateNumber(kpiElapsedValue, 1440, 1000);
             kpiElapsedTrend.textContent = "+120/hr";
-            kpiAnomaliesValue.textContent = "0";
-            kpiAnomaliesTrend.textContent = "0 / min";
+            animateNumber(kpiAnomaliesValue, 0, 600);
+            kpiAnomaliesTrend.textContent = "0 / phút";
             
             // Revert colors to default happy state
             kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300";
             kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-primary mb-1";
             
-            // Status Card Green
-            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer";
+            // Status Card Green with breathing LED
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer kpi-card";
             kpiStatusBg.className = "absolute inset-0 bg-emerald-500/5";
-            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 glow-green-strong";
-            kpiStatusText.textContent = "NORMAL OPERATIONS";
-            kpiStatusText.className = "font-headline-md text-headline-md text-emerald-400 mt-2 relative z-10 text-center text-lg";
-            kpiStatusSubtext.textContent = "System operating within nominal margins";
-            kpiStatusSubtext.className = "font-data-sm text-data-sm text-emerald-400/80 mt-1 relative z-10 font-mono";
+            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 led-breathe-green";
             
-            // Log Table
+            // Typewriter effect for status text
+            kpiStatusText.className = "font-headline-md text-headline-md text-emerald-400 mt-2 relative z-10 text-center text-lg";
+            typewriterEffect(kpiStatusText, "HOẠT ĐỘNG BÌNH THƯỜNG", 50);
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-emerald-400/80 mt-1 relative z-10 font-mono";
+            setTimeout(() => typewriterEffect(kpiStatusSubtext, "Hệ thống hoạt động trong biên độ danh định", 25), 600);
+            
+            // Clear particles
+            if (particlesContainer) particlesContainer.innerHTML = '';
+            
+            // Log Table with slide-in animation
             logTitle.className = "font-headline-md text-headline-md text-emerald-400 text-lg flex items-center gap-2";
             logTitleIcon.className = "material-symbols-outlined text-emerald-400";
-            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20 section-slide-in";
+            logTableContainer.style.animationDelay = '0.4s';
             
             logTbody.innerHTML = `
-                <tr class="log-row">
+                <tr class="log-row row-slide-in">
                     <td colspan="5" class="p-6 text-center text-emerald-400 font-semibold" style="font-family: 'Inter', sans-serif;">
-                        ✓ Nominals Verified. Spacecraft telemetry parameters are well within normal operating margins.
+                        ✓ Đã xác minh Danh định. Các thông số viễn trắc tàu vũ trụ nằm trong biên độ hoạt động bình thường.
                     </td>
                 </tr>
             `;
             
             updateCharts('happy');
             
+            // Animate SVG chart lines drawing in
+            setTimeout(() => {
+                animateSVGPath(document.getElementById('lstm-actual'), 0);
+                animateSVGPath(document.getElementById('lstm-predicted'), 200);
+                animateSVGPath(document.getElementById('anomaly-residual'), 400);
+                // Ribbon fade
+                const ribbon = document.getElementById('lstm-ribbon');
+                if (ribbon) { ribbon.classList.remove('ribbon-fade-in'); void ribbon.offsetWidth; ribbon.classList.add('ribbon-fade-in'); }
+            }, 100);
+            
+            // Animate sparklines
+            const sparklines = document.querySelectorAll('polyline');
+            sparklines.forEach(s => animateSparkline(s));
+            
         } else if (scenario === 'critical') {
             sensorSelect.value = "P-1";
             chartsContainer.classList.remove('hidden');
             maintenanceContainer.classList.add('hidden');
             
-            kpiElapsedValue.textContent = "1,440";
+            // Animated number counting
+            animateNumber(kpiElapsedValue, 1440, 1000);
             kpiElapsedTrend.textContent = "+120/hr";
-            kpiAnomaliesValue.textContent = "32";
+            animateNumber(kpiAnomaliesValue, 32, 800);
             kpiAnomaliesTrend.textContent = "↑ 4";
             
             kpiAnomaliesValue.className = "font-data-lg text-data-lg text-error";
             kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-error mb-1";
             
-            // Status Card Red blinking
-            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden border-error/50 glow-red-strong hover:-translate-y-1 transition-transform duration-300 cursor-pointer";
+            // Status Card Red with scanline + glitch + shake + breathing LED + particles
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden border-error/50 glow-red-strong hover:-translate-y-1 transition-transform duration-300 cursor-pointer scanline-effect border-flash-red kpi-card";
             kpiStatusBg.className = "absolute inset-0 bg-error/10";
-            kpiStatusLed.className = "w-2 h-2 rounded-full bg-error animate-pulse";
-            kpiStatusText.textContent = "CRITICAL ALERT";
-            kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg";
-            kpiStatusSubtext.textContent = "Subsystem P-1 Integrity Compromised";
-            kpiStatusSubtext.className = "font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono";
+            kpiStatusLed.className = "w-3 h-3 rounded-full bg-error led-breathe-red";
             
-            // Log Table
+            // Glitch + typewriter for critical text
+            kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg glitch-text";
+            typewriterEffect(kpiStatusText, "CẢNH BÁO NGHIÊM TRỌNG", 60);
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-error/80 mt-1 relative z-10 font-mono";
+            setTimeout(() => typewriterEffect(kpiStatusSubtext, "Tính toàn vẹn Hệ thống phụ P-1 bị xâm phạm", 30), 500);
+            
+            // Floating particles for emergency feel
+            if (particlesContainer) createParticles(particlesContainer, 12, '#ffb4ab');
+            
+            // Shake the alert card after a beat
+            setTimeout(() => kpiStatusCard.classList.add('alert-shake'), 400);
+            
+            // Log Table with animated rows
             logTitle.className = "font-headline-md text-headline-md text-error text-lg flex items-center gap-2";
             logTitleIcon.className = "material-symbols-outlined text-error";
-            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20 section-slide-in";
+            logTableContainer.style.animationDelay = '0.3s';
             
             logTbody.innerHTML = `
-                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5 row-slide-in" style="animation-delay: 0.1s">
                     <td class="p-4 text-error font-bold">INC-2023-892</td>
-                    <td class="p-4 text-on-surface">Signal drop &gt; 2.5x STD</td>
-                    <td class="p-4 text-on-surface-variant">Isolation Forest prolonged pattern</td>
-                    <td class="p-4 text-on-surface-variant">L-Band obstruction, RFI</td>
-                    <td class="p-4 text-primary font-bold">Trigger self-calibration</td>
+                    <td class="p-4 text-on-surface">Sụt tín hiệu &gt; 2.5x STD</td>
+                    <td class="p-4 text-on-surface-variant">Isolation Forest phát hiện mẫu kéo dài</td>
+                    <td class="p-4 text-on-surface-variant">Tắc nghẽn L-Band, nhiễu RFI</td>
+                    <td class="p-4 text-primary font-bold">Kích hoạt tự hiệu chuẩn</td>
                 </tr>
-                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer">
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer row-slide-in" style="animation-delay: 0.2s">
                     <td class="p-4 text-on-surface-variant">INC-2023-891</td>
-                    <td class="p-4 text-on-surface">Thermal spike +5C</td>
-                    <td class="p-4 text-on-surface-variant">LSTM Forecasting divergence</td>
-                    <td class="p-4 text-on-surface-variant">Solar array misalignment</td>
-                    <td class="p-4 text-primary">Adjust attitude control</td>
+                    <td class="p-4 text-on-surface">Đột biến nhiệt +5°C</td>
+                    <td class="p-4 text-on-surface-variant">Dự báo LSTM phân kỳ</td>
+                    <td class="p-4 text-on-surface-variant">Lệch mảng pin mặt trời</td>
+                    <td class="p-4 text-primary">Điều chỉnh kiểm soát tư thế</td>
                 </tr>
-                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
+                <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5 row-slide-in" style="animation-delay: 0.3s">
                     <td class="p-4 text-error">INC-2023-890</td>
-                    <td class="p-4 text-on-surface">Data packet loss &gt; 15%</td>
-                    <td class="p-4 text-on-surface-variant">Residual threshold breach</td>
-                    <td class="p-4 text-on-surface-variant">Ground station handover failure</td>
-                    <td class="p-4 text-primary font-bold">Switch to backup transponder</td>
+                    <td class="p-4 text-on-surface">Mất gói dữ liệu &gt; 15%</td>
+                    <td class="p-4 text-on-surface-variant">Vi phạm ngưỡng phần dư</td>
+                    <td class="p-4 text-on-surface-variant">Lỗi chuyển giao trạm mặt đất</td>
+                    <td class="p-4 text-primary font-bold">Chuyển sang bộ phát đáp dự phòng</td>
                 </tr>
-                <tr class="hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer">
+                <tr class="hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer row-slide-in" style="animation-delay: 0.4s">
                     <td class="p-4 text-on-surface-variant">INC-2023-889</td>
-                    <td class="p-4 text-on-surface">Power variance 0.65v</td>
-                    <td class="p-4 text-on-surface-variant">Contextual Anomaly</td>
-                    <td class="p-4 text-on-surface-variant">Eclipse transition anomaly</td>
-                    <td class="p-4 text-primary">Monitor battery degradation</td>
+                    <td class="p-4 text-on-surface">Biến thiên công suất 0.65v</td>
+                    <td class="p-4 text-on-surface-variant">Bất thường theo ngữ cảnh</td>
+                    <td class="p-4 text-on-surface-variant">Bất thường chuyển tiếp nhật thực</td>
+                    <td class="p-4 text-primary">Giám sát suy giảm pin</td>
                 </tr>
             `;
             
             updateCharts('critical');
             
+            // Animate SVG chart lines drawing in
+            setTimeout(() => {
+                animateSVGPath(document.getElementById('lstm-actual'), 0);
+                animateSVGPath(document.getElementById('lstm-predicted'), 200);
+                animateSVGPath(document.getElementById('anomaly-residual'), 400);
+                const ribbon = document.getElementById('lstm-ribbon');
+                if (ribbon) { ribbon.classList.remove('ribbon-fade-in'); void ribbon.offsetWidth; ribbon.classList.add('ribbon-fade-in'); }
+            }, 100);
+            
+            // Pop-in anomaly markers with stagger
+            setTimeout(() => {
+                document.querySelectorAll('#lstm-anomalies circle, #anomaly-markers circle').forEach((c, i) => {
+                    c.classList.add('anomaly-pop-in');
+                    c.style.animationDelay = (i * 0.08) + 's';
+                });
+            }, 800);
+            
+            // Animate sparklines
+            const sparklines = document.querySelectorAll('polyline');
+            sparklines.forEach(s => animateSparkline(s));
+            
         } else if (scenario === 'robust') {
             chartsContainer.classList.add('hidden');
             maintenanceContainer.classList.remove('hidden');
-            maintenanceSensorName.textContent = "Sensor: " + sensorSelect.options[sensorSelect.selectedIndex].text;
+            maintenanceSensorName.textContent = "Cảm biến: " + sensorSelect.options[sensorSelect.selectedIndex].text;
             
+            // Animated dash display for paused values
             kpiElapsedValue.textContent = "---";
-            kpiElapsedTrend.textContent = "PAUSED";
+            kpiElapsedTrend.textContent = "TẠM DỪNG";
             kpiAnomaliesValue.textContent = "---";
-            kpiAnomaliesTrend.textContent = "PAUSED";
+            kpiAnomaliesTrend.textContent = "TẠM DỪNG";
             
             kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface-variant";
             kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-on-surface-variant mb-1";
             
-            // Status Card Yellow Maintenance
-            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-yellow-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:-translate-y-1 cursor-default";
+            // Status Card Yellow Maintenance with breathing LED
+            kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-yellow-500/40 shadow-[0_0_15px_rgba(245,158,11,0.15)] hover:-translate-y-1 cursor-default kpi-card";
             kpiStatusBg.className = "absolute inset-0 bg-yellow-500/5";
-            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_8px_#F59E0B]";
-            kpiStatusText.textContent = "MAINTENANCE MODE";
-            kpiStatusText.className = "font-headline-md text-headline-md text-yellow-500 mt-2 relative z-10 text-center text-lg";
-            kpiStatusSubtext.textContent = "Sensor under calibration / Model retraining";
-            kpiStatusSubtext.className = "font-data-sm text-data-sm text-yellow-500/80 mt-1 relative z-10 font-mono";
+            kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-yellow-500 led-breathe-yellow";
             
-            // Log Table
+            // Typewriter for maintenance status
+            kpiStatusText.className = "font-headline-md text-headline-md text-yellow-500 mt-2 relative z-10 text-center text-lg";
+            typewriterEffect(kpiStatusText, "CHẾ ĐỘ BẢO TRÌ", 50);
+            kpiStatusSubtext.className = "font-data-sm text-data-sm text-yellow-500/80 mt-1 relative z-10 font-mono";
+            setTimeout(() => typewriterEffect(kpiStatusSubtext, "Cảm biến đang hiệu chuẩn / Mô hình đang huấn luyện lại", 25), 600);
+            
+            // Clear particles
+            if (particlesContainer) particlesContainer.innerHTML = '';
+            
+            // Start cycling maintenance status text
+            startMaintenanceCycle();
+            
+            // Typewriter for maintenance quote
+            const quoteEl = document.getElementById('maintenance-quote');
+            if (quoteEl) {
+                setTimeout(() => typewriterEffect(quoteEl, '"Cảm biến đang bảo trì / Mô hình đang Retraining"', 35), 300);
+            }
+            
+            // Log Table with slide-in
             logTitle.className = "font-headline-md text-headline-md text-yellow-500 text-lg flex items-center gap-2";
             logTitleIcon.className = "material-symbols-outlined text-yellow-500";
-            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-yellow-500/20";
+            logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-yellow-500/20 section-slide-in";
+            logTableContainer.style.animationDelay = '0.4s';
             
             logTbody.innerHTML = `
-                <tr class="log-row" style="background-color: rgba(245, 158, 11, 0.05)">
-                    <td class="p-4 text-yellow-500 font-bold">MAINT-MODE</td>
-                    <td class="p-4 text-on-surface">Auto-Retraining Scheduled</td>
-                    <td class="p-4 text-on-surface-variant">Bypassed forecasting predictions safely</td>
-                    <td class="p-4 text-on-surface-variant">Sensor hardware recalibration cycle</td>
-                    <td class="p-4 text-yellow-500 font-bold">Retraining models in background</td>
+                <tr class="log-row row-slide-in" style="background-color: rgba(245, 158, 11, 0.05); animation-delay: 0.2s">
+                    <td class="p-4 text-yellow-500 font-bold">BẢO-TRÌ</td>
+                    <td class="p-4 text-on-surface">Đã lên lịch Tự huấn luyện lại</td>
+                    <td class="p-4 text-on-surface-variant">Đã bỏ qua dự báo an toàn</td>
+                    <td class="p-4 text-on-surface-variant">Chu kỳ hiệu chuẩn lại phần cứng cảm biến</td>
+                    <td class="p-4 text-yellow-500 font-bold">Đang huấn luyện mô hình trong nền</td>
                 </tr>
             `;
         } else if (scenario === 'uploaded') {
@@ -980,62 +1537,90 @@
                 if (upData.anomalies[i] === 1) uploadAnoms++;
             }
             
-            kpiElapsedValue.textContent = uploadLen.toLocaleString();
-            kpiElapsedTrend.textContent = "INJECTED";
-            kpiAnomaliesValue.textContent = uploadAnoms;
+            // Animated counters
+            animateNumber(kpiElapsedValue, uploadLen, 800);
+            kpiElapsedTrend.textContent = "ĐÃ NẠP";
+            animateNumber(kpiAnomaliesValue, uploadAnoms, 800);
             kpiAnomaliesTrend.textContent = "↑ " + uploadAnoms;
             
             if (uploadAnoms > 0) {
                 kpiAnomaliesValue.className = "font-data-lg text-data-lg text-error";
                 kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-error mb-1";
                 
-                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-error/50 glow-red-strong hover:-translate-y-1 cursor-pointer";
+                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 border-error/50 glow-red-strong hover:-translate-y-1 cursor-pointer scanline-effect kpi-card";
                 kpiStatusBg.className = "absolute inset-0 bg-error/15";
-                kpiStatusLed.className = "w-2 h-2 rounded-full bg-error animate-pulse";
-                kpiStatusText.textContent = "CRITICAL ALERT";
-                kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg";
-                kpiStatusSubtext.textContent = "Telemetry breaches found in: " + upData.filename;
+                kpiStatusLed.className = "w-3 h-3 rounded-full bg-error led-breathe-red";
+                
+                kpiStatusText.className = "font-headline-md text-headline-md text-on-error-container mt-2 relative z-10 text-center text-lg glitch-text";
+                typewriterEffect(kpiStatusText, "CẢNH BÁO NGHIÊM TRỌNG", 60);
                 kpiStatusSubtext.className = "font-data-sm text-data-sm text-error/90 mt-1 relative z-10 font-mono";
+                setTimeout(() => typewriterEffect(kpiStatusSubtext, "Phát hiện vi phạm viễn trắc trong: " + upData.filename, 25), 500);
+                
+                if (particlesContainer) createParticles(particlesContainer, 10, '#ffb4ab');
                 
                 logTitle.className = "font-headline-md text-headline-md text-error text-lg flex items-center gap-2";
                 logTitleIcon.className = "material-symbols-outlined text-error";
-                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20";
+                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-error/20 section-slide-in";
                 
                 logTbody.innerHTML = `
-                    <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5">
-                        <td class="p-4 text-error font-bold">INC-UPLOADED</td>
-                        <td class="p-4 text-on-surface">Telemetry anomaly in uploaded file</td>
-                        <td class="p-4 text-on-surface-variant">Isolation Forest detected ${uploadAnoms} anomalies</td>
-                        <td class="p-4 text-on-surface-variant">File: ${upData.filename}</td>
-                        <td class="p-4 text-primary font-bold">Perform calibration and safety check</td>
+                    <tr class="border-b border-white/5 hover:bg-white/[0.04] transition-colors duration-200 cursor-pointer bg-error/5 row-slide-in">
+                        <td class="p-4 text-error font-bold">INC-TẢI-LÊN</td>
+                        <td class="p-4 text-on-surface">Bất thường viễn trắc trong tệp tải lên</td>
+                        <td class="p-4 text-on-surface-variant">Isolation Forest phát hiện ${uploadAnoms} bất thường</td>
+                        <td class="p-4 text-on-surface-variant">Tệp: ${upData.filename}</td>
+                        <td class="p-4 text-primary font-bold">Thực hiện hiệu chuẩn và kiểm tra an toàn</td>
                     </tr>
                 `;
             } else {
                 kpiAnomaliesValue.className = "font-data-lg text-data-lg text-on-surface group-hover:text-primary transition-colors duration-300";
                 kpiAnomaliesTrend.className = "font-data-sm text-data-sm text-primary mb-1";
                 
-                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer";
+                kpiStatusCard.className = "glass-panel p-card-padding rounded-xl flex flex-col justify-center items-center relative overflow-hidden transition-transform duration-300 hover:-translate-y-1 border-emerald-500/40 shadow-[0_0_15px_rgba(16,185,129,0.15)] cursor-pointer kpi-card";
                 kpiStatusBg.className = "absolute inset-0 bg-emerald-500/5";
-                kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 glow-green-strong";
-                kpiStatusText.textContent = "NORMAL OPERATIONS";
+                kpiStatusLed.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 led-breathe-green";
+                
                 kpiStatusText.className = "font-headline-md text-headline-md text-emerald-400 mt-2 relative z-10 text-center text-lg";
-                kpiStatusSubtext.textContent = "No anomalies detected in: " + upData.filename;
+                typewriterEffect(kpiStatusText, "HOẠT ĐỘNG BÌNH THƯỜNG", 50);
                 kpiStatusSubtext.className = "font-data-sm text-data-sm text-emerald-400/80 mt-1 relative z-10 font-mono";
+                setTimeout(() => typewriterEffect(kpiStatusSubtext, "Không phát hiện bất thường trong: " + upData.filename, 25), 600);
+                
+                if (particlesContainer) particlesContainer.innerHTML = '';
                 
                 logTitle.className = "font-headline-md text-headline-md text-emerald-400 text-lg flex items-center gap-2";
                 logTitleIcon.className = "material-symbols-outlined text-emerald-400";
-                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20";
+                logTableContainer.className = "glass-panel rounded-xl overflow-hidden flex flex-col hover:shadow-lg transition-all duration-300 border border-emerald-500/20 section-slide-in";
                 
                 logTbody.innerHTML = `
-                    <tr class="log-row">
+                    <tr class="log-row row-slide-in">
                         <td colspan="5" class="p-6 text-center text-emerald-400 font-semibold" style="font-family: 'Inter', sans-serif;">
-                            ✓ Ingested telemetry has been validated. No anomalies detected.
+                            ✓ Viễn trắc đã nạp đã được xác thực. Không phát hiện bất thường.
                         </td>
                     </tr>
                 `;
             }
             
             updateCharts('uploaded');
+            
+            // Animate SVG charts
+            setTimeout(() => {
+                animateSVGPath(document.getElementById('lstm-actual'), 0);
+                animateSVGPath(document.getElementById('lstm-predicted'), 200);
+                animateSVGPath(document.getElementById('anomaly-residual'), 400);
+                const ribbon = document.getElementById('lstm-ribbon');
+                if (ribbon) { ribbon.classList.remove('ribbon-fade-in'); void ribbon.offsetWidth; ribbon.classList.add('ribbon-fade-in'); }
+            }, 100);
+            
+            if (uploadAnoms > 0) {
+                setTimeout(() => {
+                    document.querySelectorAll('#lstm-anomalies circle, #anomaly-markers circle').forEach((c, i) => {
+                        c.classList.add('anomaly-pop-in');
+                        c.style.animationDelay = (i * 0.08) + 's';
+                    });
+                }, 800);
+            }
+            
+            const sparklines = document.querySelectorAll('polyline');
+            sparklines.forEach(s => animateSparkline(s));
         }
     }
 
@@ -1077,6 +1662,29 @@
     } else {
         activateScenario('happy');
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        if (typeof UPLOADED_SCENARIO_NAME !== 'undefined' && 
+            UPLOADED_SCENARIO_NAME !== null && 
+            UPLOADED_SCENARIO_NAME !== 'null') {
+
+            const fileName = SCENARIO_DATA['uploaded'].filename || "Tệp viễn trắc mới";
+            const titleEl = document.getElementById('scenario-title');
+            const descEl = document.getElementById('scenario-desc');
+            
+            if(titleEl) titleEl.innerText = "LIVE INFERENCE: " + fileName;
+            if(descEl) descEl.innerText = "Đang chạy suy luận trực tiếp (Real-time) qua lõi LSTM & Isolation Forest...";
+
+            document.getElementById('main-dashboard').classList.add('border-flash-red');
+
+            startLiveStream('uploaded');
+            
+        } else {
+            if(typeof activateScenario === "function") {
+                activateScenario('happy');
+            }
+        }
+    });
 </script>
 </body>
 </html>

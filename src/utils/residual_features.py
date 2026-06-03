@@ -2,13 +2,11 @@ from typing import Tuple, List
 import numpy as np
 
 def compute_residuals(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
-    """Tính toán trị tuyệt đối của sai số giữa thực tế và dự đoán."""
     y_true = y_true.reshape(-1)
     y_pred = y_pred.reshape(-1)
     return np.abs(y_true - y_pred)
 
 def compute_rolling_features(residuals: np.ndarray, window: int) -> Tuple[np.ndarray, List[str]]:
-    """Trích xuất 5 đặc trưng trượt từ mảng sai số."""
     if window <= 0:
         raise ValueError("window must be > 0")
 

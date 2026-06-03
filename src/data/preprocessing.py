@@ -80,7 +80,6 @@ def plot_baselines(
 	if series.ndim > 1:
 		series = series[:, 0]
 
-	# Raw signal + rolling mean.
 	fig, ax = plt.subplots(figsize=(12, 4))
 	ax.plot(series, linewidth=0.8, label="raw")
 	if window_size > 1:
@@ -92,7 +91,6 @@ def plot_baselines(
 	fig.savefig(os.path.join(report_dir, f"baseline_raw_{channel}.png"), dpi=150)
 	plt.close(fig)
 
-	# Histogram.
 	fig, ax = plt.subplots(figsize=(6, 4))
 	ax.hist(series, bins=50, color="#4c72b0", alpha=0.85)
 	ax.set_title(f"Histogram: {channel}")
@@ -100,7 +98,6 @@ def plot_baselines(
 	fig.savefig(os.path.join(report_dir, f"baseline_hist_{channel}.png"), dpi=150)
 	plt.close(fig)
 
-	# Window sample visualization.
 	if len(series) > window_size:
 		sample = series[: window_size + 1]
 		fig, ax = plt.subplots(figsize=(8, 3))
@@ -112,7 +109,6 @@ def plot_baselines(
 		fig.savefig(os.path.join(report_dir, f"baseline_window_{channel}.png"), dpi=150)
 		plt.close(fig)
 
-	# Train/test split visualization.
 	split_idx = int(len(series) * train_split)
 	fig, ax = plt.subplots(figsize=(12, 4))
 	ax.plot(series, linewidth=0.8)

@@ -80,6 +80,10 @@ SMAP_Anomaly_Detection/
     python.exe -m pip install --upgrade pip
     python.exe -m pip install -r requirements.txt
 
+## 4. Env Variables
+    cp .env.example .env
+    # Edit .env with your Telegram Bot API token and Admin Chat ID
+
 ## ▶️ 3. Run Project
 ### 1. Train the model
     python train.py
@@ -87,10 +91,9 @@ SMAP_Anomaly_Detection/
 ### 2. Run Streamlit Web Dashboard
     streamlit run app/app.py
 
-## 3. Testing
+## Testing
 ### Run unit tests
     python -m pytest tests/
-
 
 ## Data Contract
 ### LSTM Input
@@ -109,13 +112,3 @@ SMAP_Anomaly_Detection/
 - Plotly
 - NumPy / Pandas
 
-
-## SPRINTS
-| Sprint  | Main focus                                                         | Owner     | Deliverables                                              |
-| ----- | ------------------------------------------------------------------- | --------- | --------------------------------------------------------- |
-| Sprint 1 | Light EDA + Freeze Data Contract + Sliding Window                  | Khang     | EDA report, config.py, create_sequences(), verified shape |
-| Sprint 2 | Build, train, and save the LSTM model                              | Khang     | lstm.keras, actual vs predicted plot                      |
-| Sprint 3 | Residual engineering + Rolling Features + Isolation Forest + Metrics | Kiệt    | isolation_forest.pkl, anomaly plots, evaluation metrics   |
-| Sprint 4 | Build inference_pipeline.py and Streamlit UI                       | Kiệt      | Dashboard running with final models                       |
-| Sprint 5 | Full system integration, remove Mock Data, bug fixes               | Entire team | Full pipeline stable                                    |
-| Sprint 6 | Write report, slides, demo rehearsal                               | Entire team | PDF report, slides, backup demo video                   |
